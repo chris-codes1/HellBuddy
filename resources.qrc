@@ -1,0 +1,90 @@
+<?xml version="1.0" ?>
+<RCC>
+    <qresource prefix="/icons">
+        <file>HellBuddyIcon.ico</file>
+    </qresource>
+    <qresource prefix="/thumbs">
+        <file>StratagemIcons/ARC-3 Arc Thrower.png</file>
+        <file>StratagemIcons/ARC-3 Tesla Tower.png</file>
+        <file>StratagemIcons/Airburst Rocket Launcher.png</file>
+        <file>StratagemIcons/Anti-Materiel Rifle.png</file>
+        <file>StratagemIcons/Anti-Personnel Minefield.png</file>
+        <file>StratagemIcons/Anti-Tank Emplacement.png</file>
+        <file>StratagemIcons/Anti-Tank Mines.png</file>
+        <file>StratagemIcons/Autocannon Sentry.png</file>
+        <file>StratagemIcons/Autocannon.png</file>
+        <file>StratagemIcons/Ballistic Shield Backpack.png</file>
+        <file>StratagemIcons/Commando.png</file>
+        <file>StratagemIcons/De-Escalator.png</file>
+        <file>StratagemIcons/Directional Shield.png</file>
+        <file>StratagemIcons/EMS Mortar Sentry.png</file>
+        <file>StratagemIcons/Eagle 110mm Rocket Pods.png</file>
+        <file>StratagemIcons/Eagle 500kg Bomb.png</file>
+        <file>StratagemIcons/Eagle Airstrike.png</file>
+        <file>StratagemIcons/Eagle Cluster Bomb.png</file>
+        <file>StratagemIcons/Eagle Napalm Airstrike.png</file>
+        <file>StratagemIcons/Eagle Rearm.png</file>
+        <file>StratagemIcons/Eagle Smoke Strike.png</file>
+        <file>StratagemIcons/Eagle Strafing Run.png</file>
+        <file>StratagemIcons/Emancipator Exosuit.png</file>
+        <file>StratagemIcons/Epoch.png</file>
+        <file>StratagemIcons/Expendable Anti-Tank.png</file>
+        <file>StratagemIcons/Fast Recon Vehicle.png</file>
+        <file>StratagemIcons/Flame Sentry.png</file>
+        <file>StratagemIcons/Flamethrower.png</file>
+        <file>StratagemIcons/Gas Mines.png</file>
+        <file>StratagemIcons/Gatling Sentry.png</file>
+        <file>StratagemIcons/Grenade Launcher.png</file>
+        <file>StratagemIcons/Grenadier Battlement.png</file>
+        <file>StratagemIcons/Guard Dog AR-23.png</file>
+        <file>StratagemIcons/Guard Dog ARC-3.png</file>
+        <file>StratagemIcons/Guard Dog Dog Breath.png</file>
+        <file>StratagemIcons/Guard Dog Rover.png</file>
+        <file>StratagemIcons/HMG Emplacement.png</file>
+        <file>StratagemIcons/Heavy Machine Gun.png</file>
+        <file>StratagemIcons/Hellbomb.png</file>
+        <file>StratagemIcons/Hive Breaker Drill.png</file>
+        <file>StratagemIcons/Hover Pack.png</file>
+        <file>StratagemIcons/Incendiary Mines.png</file>
+        <file>StratagemIcons/Jump Pack.png</file>
+        <file>StratagemIcons/Laser Cannon.png</file>
+        <file>StratagemIcons/Laser Sentry.png</file>
+        <file>StratagemIcons/Machine Gun Sentry.png</file>
+        <file>StratagemIcons/Machine Gun.png</file>
+        <file>StratagemIcons/Mortar Sentry.png</file>
+        <file>StratagemIcons/One True Flag.png</file>
+        <file>StratagemIcons/Orbital 120mm HE Barrage.png</file>
+        <file>StratagemIcons/Orbital 380mm HE Barrage.png</file>
+        <file>StratagemIcons/Orbital Airburst Strike.png</file>
+        <file>StratagemIcons/Orbital EMS Strike.png</file>
+        <file>StratagemIcons/Orbital Gas Strike.png</file>
+        <file>StratagemIcons/Orbital Gatling Barrage.png</file>
+        <file>StratagemIcons/Orbital Laser.png</file>
+        <file>StratagemIcons/Orbital Napalm Barrage.png</file>
+        <file>StratagemIcons/Orbital Precision Strike.png</file>
+        <file>StratagemIcons/Orbital Railcannon Strike.png</file>
+        <file>StratagemIcons/Orbital Smoke Strike.png</file>
+        <file>StratagemIcons/Orbital Walking Barrage.png</file>
+        <file>StratagemIcons/Patriot Exosuit.png</file>
+        <file>StratagemIcons/Portable Hellbomb.png</file>
+        <file>StratagemIcons/Prospecting Drill.png</file>
+        <file>StratagemIcons/Quasar Cannon.png</file>
+        <file>StratagemIcons/Railgun.png</file>
+        <file>StratagemIcons/Recoilless Rifle.png</file>
+        <file>StratagemIcons/Reinforce.png</file>
+        <file>StratagemIcons/Resupply.png</file>
+        <file>StratagemIcons/Rocket Sentry.png</file>
+        <file>StratagemIcons/SEAF Artillery.png</file>
+        <file>StratagemIcons/Seismic Probe.png</file>
+        <file>StratagemIcons/Shield Generator Pack.png</file>
+        <file>StratagemIcons/Shield Generator Relay.png</file>
+        <file>StratagemIcons/SoS Beacon.png</file>
+        <file>StratagemIcons/Spear.png</file>
+        <file>StratagemIcons/Stalwart.png</file>
+        <file>StratagemIcons/Steriliser.png</file>
+        <file>StratagemIcons/Super Earth Flag.png</file>
+        <file>StratagemIcons/Supply Pack.png</file>
+        <file>StratagemIcons/W.A.S.P Launcher.png</file>
+        <file>StratagemIcons/Warp Pack.png</file>
+    </qresource>
+</RCC>
