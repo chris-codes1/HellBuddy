@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+class MainWindow; // forward declaration (avoids circular include)
+
 namespace Ui {
 class StratagemPicker;
 }
@@ -12,11 +14,13 @@ class StratagemPicker : public QWidget
     Q_OBJECT
 
 public:
-    explicit StratagemPicker(QWidget *parent = nullptr);
+    explicit StratagemPicker(MainWindow *mainWindow = nullptr, QWidget *parent = nullptr);
     ~StratagemPicker();
 
 private:
     Ui::StratagemPicker *ui;
+    MainWindow *m_mainWindow; // store reference to your main window
+
     void minimizeWindow();
 
     void onStratagemClicked(QString);

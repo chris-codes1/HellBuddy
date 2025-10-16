@@ -10,14 +10,14 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , stratagemPicker(nullptr)   // initialize
+    , stratagemPicker(nullptr)
 {
     ui->setupUi(this);
     setWindowTitle("HellBuddy");
 
     // Connect minimize and close buttons
     connect(ui->minimizeBtn, &QPushButton::clicked, this, &MainWindow::minimizeWindow);
-    connect(ui->closeBtn, &QPushButton::clicked, this, &MainWindow::close);
+    connect(ui->closeBtn, &QPushButton::clicked, this, &MainWindow::closeAllWindows);
 
     // Read qt_key_to_win_vk.json and set to array
     QFile qtToWinVkFile(QCoreApplication::applicationDirPath() + "/qt_key_to_win_vk.json");
@@ -152,10 +152,31 @@ void MainWindow::minimizeWindow() {
     this->showMinimized();
 }
 
+void MainWindow::closeAllWindows() {
+    //Find and close select stratagem window if it's exists
+    const auto topWidgets = QApplication::topLevelWidgets();
+    for (QWidget *widget : topWidgets) {
+        stratagemPicker = qobject_cast<StratagemPicker*>(widget);
+        if (stratagemPicker)
+            break;
+    }
+
+    if (stratagemPicker) {
+        qDebug() << "window found";
+        stratagemPicker->close();
+    }
+    else if (!stratagemPicker) {
+        qDebug() << "window not found";
+    }
+
+    //Close main window
+    this->close();
+}
+
 void MainWindow::onStratagemClicked(int number) {
     //Open window displaying stratagems
     if (!stratagemPicker) {
-        stratagemPicker = new StratagemPicker(nullptr); // create it once
+        stratagemPicker = new StratagemPicker(this); // create it once
     }
     stratagemPicker->show();   // show window
     stratagemPicker->raise();  // bring to front
@@ -183,7 +204,8 @@ void MainWindow::onKeybindClicked(int number) {
 void MainWindow::onHotkeyPressed(int hotkeyNumber)
 {
     qDebug() << "Hotkey pressed!" << hotkeyNumber;
-    // Put your code here
+    // Activate stratagem number 'hotkeyNumber'
+
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)

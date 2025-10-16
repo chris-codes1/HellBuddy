@@ -33,6 +33,7 @@ private:
     void onHotkeyPressed(int);
     void keyPressEvent(QKeyEvent *event) override;
     void minimizeWindow();
+    void closeAllWindows();
     Ui::MainWindow *ui;
 
     //For window dragging

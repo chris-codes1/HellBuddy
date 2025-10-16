@@ -7,9 +7,12 @@
 #include <QJsonArray>
 #include <QToolButton>
 
-StratagemPicker::StratagemPicker(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::StratagemPicker)
+#include "mainwindow.h"
+
+StratagemPicker::StratagemPicker(MainWindow *mainWindow, QWidget *parent)
+    : QWidget(parent),
+    ui(new Ui::StratagemPicker),
+    m_mainWindow(mainWindow)
 {
     ui->setupUi(this);
     setWindowTitle("Select a stratagem");
@@ -36,11 +39,12 @@ StratagemPicker::StratagemPicker(QWidget *parent)
 
     int row = 0;
     int column = 0;
-    for (const QJsonValue &val : stratagems) {
+    const QJsonArray &array = stratagems;
+    for (const QJsonValue &val : array) {
         QJsonObject obj = val.toObject();
 
         QString name = obj["name"].toString();
-        QJsonArray sequenceArray = obj["sequence"].toArray();
+        //QJsonArray sequenceArray = obj["sequence"].toArray();
 
         qDebug() << "Stratagem:" << name;
 
@@ -62,6 +66,36 @@ StratagemPicker::StratagemPicker(QWidget *parent)
         connect(stratagemBtn, &QPushButton::clicked, this, [=]() {
             onStratagemClicked(name);
             //Change selected stratagem to this stratagem
+            if (m_mainWindow)
+            {
+                qDebug() << "exists 1";
+            }
+
+            if (m_mainWindow->centralWidget)
+            {
+                qDebug() << "exists 2";
+            }
+
+            if (m_mainWindow->centralWidget->stratagemGridLayout)
+            {
+                qDebug() << "exists 3";
+            }
+
+            if (m_mainWindow->centralWidget->stratagemGridLayout->stratagem0)
+            {
+                qDebug() << "exists 4";
+            }
+
+            if (m_mainWindow && m_mainWindow->selectedKeybindBtn)
+            {
+                m_mainWindow->selectedKeybindBtn->setText("Changed from StratagemPicker!");
+            }
+
+            //Change icon
+
+            //Change JSON file and re-write it
+
+            this->close();
         });
     }
 }
