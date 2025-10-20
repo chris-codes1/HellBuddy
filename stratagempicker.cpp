@@ -43,16 +43,14 @@ StratagemPicker::StratagemPicker(MainWindow *mainWindow, QWidget *parent)
     for (const QJsonValue &val : array) {
         QJsonObject obj = val.toObject();
 
-        QString name = obj["name"].toString();
+        QString stratagemName = obj["name"].toString();
         //QJsonArray sequenceArray = obj["sequence"].toArray();
 
-        qDebug() << "Stratagem:" << name;
-
         QPushButton *stratagemBtn = new QPushButton(this);
-        QString iconPath = QString(":/thumbs/StratagemIcons/%1.png").arg(name);
+        QString iconPath = QString(":/thumbs/StratagemIcons/%1.png").arg(stratagemName);
         stratagemBtn->setIcon(QIcon(iconPath));
         stratagemBtn->setIconSize(QSize(50, 50));
-        stratagemBtn->setToolTip(name);
+        stratagemBtn->setToolTip(stratagemName);
 
         QGridLayout *layout = qobject_cast<QGridLayout*>(ui->stratagems->layout());
         layout->addWidget(stratagemBtn, row, column);
@@ -64,37 +62,7 @@ StratagemPicker::StratagemPicker(MainWindow *mainWindow, QWidget *parent)
         }
 
         connect(stratagemBtn, &QPushButton::clicked, this, [=]() {
-            onStratagemClicked(name);
-            //Change selected stratagem to this stratagem
-            if (m_mainWindow)
-            {
-                qDebug() << "exists 1";
-            }
-
-            if (m_mainWindow->centralWidget)
-            {
-                qDebug() << "exists 2";
-            }
-
-            if (m_mainWindow->centralWidget->stratagemGridLayout)
-            {
-                qDebug() << "exists 3";
-            }
-
-            if (m_mainWindow->centralWidget->stratagemGridLayout->stratagem0)
-            {
-                qDebug() << "exists 4";
-            }
-
-            if (m_mainWindow && m_mainWindow->selectedKeybindBtn)
-            {
-                m_mainWindow->selectedKeybindBtn->setText("Changed from StratagemPicker!");
-            }
-
-            //Change icon
-
-            //Change JSON file and re-write it
-
+            m_mainWindow->setStratagem(stratagemName);
             this->close();
         });
     }
@@ -107,10 +75,6 @@ StratagemPicker::~StratagemPicker()
 
 void StratagemPicker::minimizeWindow() {
     this->showMinimized();
-}
-
-void StratagemPicker::onStratagemClicked(QString stratagemName) {
-    qDebug() << stratagemName;
 }
 
 void StratagemPicker::mousePressEvent(QMouseEvent *event)

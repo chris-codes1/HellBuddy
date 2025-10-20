@@ -21,6 +21,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void setStratagem(const QString &stratagemName);
 
 protected:
     bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
@@ -43,10 +44,13 @@ private:
     QPoint dragPosition;
     bool dragging = false;
 
+    //Stratagem setting
+    int selectedStratagemNumber;
+
     //Stratagem and keybind arrays
     QJsonObject qtToWinVkKeyMap;
-    //QJsonArray stratagems;
-    //QJsonArray keybinds;
+    QVector<QString> equippedStratagems;
+    QHash<QString, QVector<QString>> stratagems;
 
     //For keybind setting input listening
     bool listeningForInput;

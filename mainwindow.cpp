@@ -161,14 +161,6 @@ void MainWindow::closeAllWindows() {
             break;
     }
 
-    if (stratagemPicker) {
-        qDebug() << "window found";
-        stratagemPicker->close();
-    }
-    else if (!stratagemPicker) {
-        qDebug() << "window not found";
-    }
-
     //Close main window
     this->close();
 }
@@ -182,7 +174,7 @@ void MainWindow::onStratagemClicked(int number) {
     stratagemPicker->raise();  // bring to front
     stratagemPicker->activateWindow();
 
-    qDebug() << "Stratagem button pressed:" << number;
+    selectedStratagemNumber = number;
 }
 
 void MainWindow::onKeybindClicked(int number) {
@@ -203,9 +195,67 @@ void MainWindow::onKeybindClicked(int number) {
 
 void MainWindow::onHotkeyPressed(int hotkeyNumber)
 {
-    qDebug() << "Hotkey pressed!" << hotkeyNumber;
-    // Activate stratagem number 'hotkeyNumber'
+    //Change button color to green
 
+
+    // Activate stratagem number 'hotkeyNumber'
+    // QString stratagemToActivate = stratagems[hotkeyNumber];
+
+    //Change color button back
+}
+
+void MainWindow::setStratagem(const QString &stratagemName)
+{
+    //Set icon
+    QString iconPath = QString(":/thumbs/StratagemIcons/%1.png").arg(stratagemName);
+    QString buttonName = QString("stratagemBtn%1").arg(selectedStratagemNumber);
+    QPushButton *button = findChild<QPushButton *>(buttonName);
+    button->setIcon(QIcon(iconPath));
+
+    //Set stratagem name to 'keybinds' QVector - [i] = stratagemName
+    equippedStratagems.resize(10);
+    equippedStratagems[selectedStratagemNumber] = stratagemName;
+
+    // Save selected stratagem to user_data.json -> equipped_stratagems -  [i] = stratagemName
+    QFile file("user_data.json");
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "Failed to open file for reading.";
+        return;
+    }
+
+    // Parse existing JSON
+    QByteArray data = file.readAll();
+    file.close();
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (!doc.isObject()) {
+        qDebug() << "JSON is not an object.";
+        return;
+    }
+
+    QJsonObject root = doc.object();
+
+    // Get the "equipped_stratagems" array
+    QJsonArray equippedStratagemsArray = root.value("equipped_stratagems").toArray();
+    if (selectedStratagemNumber < 0 || selectedStratagemNumber >= equippedStratagemsArray.size()) {
+        qDebug() << "Invalid stratagem index:" << selectedStratagemNumber;
+        return;
+    }
+
+    // Replace element
+    equippedStratagemsArray[selectedStratagemNumber] = stratagemName;
+
+    // Update root object
+    root["equipped_stratagems"] = equippedStratagemsArray;
+
+    // // Write back to file
+    file.setFileName("user_data.json");
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        qDebug() << "Failed to open file for writing.";
+        return;
+    }
+    QJsonDocument saveDoc(root);
+    file.write(saveDoc.toJson(QJsonDocument::Indented));
+    file.close();
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
@@ -325,6 +375,4 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     QJsonDocument saveDoc(root);
     file.write(saveDoc.toJson(QJsonDocument::Indented));
     file.close();
-
-    qDebug() << "Keybind updated successfully.";
 }

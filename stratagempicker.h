@@ -23,8 +23,6 @@ private:
 
     void minimizeWindow();
 
-    void onStratagemClicked(QString);
-
     //For window dragging
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
