@@ -1,11 +1,5 @@
 #include "stratagempicker.h"
 #include "ui_stratagempicker.h"
-#include <QFile>
-#include <QMouseEvent>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QToolButton>
 
 #include "mainwindow.h"
 
