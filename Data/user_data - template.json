@@ -1,0 +1,24 @@
+{
+  "equipped_stratagems": [
+    "Reinforce",
+    "Resupply",
+    "Eagle Rearm",
+    "Orbital Precision Strike",
+    "Machine Gun",
+    "Machine Gun Sentry",
+    "Gatling Sentry",
+    "Orbital Gatling Barrage",
+    "Orbital Napalm Barrage",
+    "Eagle Airstrike"
+  ],
+  "keybinds": [
+    {"letter": "T", "key_code": "0x54"},
+    {"letter": "Y", "key_code": "0x59"},
+    {"letter": "H", "key_code": "0x48"},
+    {"letter": "N", "key_code": "0x4E"},
+    {"letter": "U", "key_code": "0x55"},
+    {"letter": "J", "key_code": "0x4A"},
+    {"letter": "M", "key_code": "0x4D"},
+    {"letter": "K", "key_code": "0x4B"}
+  ]
+}

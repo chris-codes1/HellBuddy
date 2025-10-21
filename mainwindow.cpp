@@ -1,23 +1,25 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QMouseEvent>
-#include <QApplication>
-#include <QFile>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , stratagemPicker(nullptr)   // initialize
+    , stratagemPicker(nullptr)
 {
     ui->setupUi(this);
     setWindowTitle("HellBuddy");
 
+    //Key map
+    keyMap = {
+        {"W", VK_UP}, // Set to arrow keys
+        {"A", VK_LEFT},
+        {"S", VK_DOWN},
+        {"D", VK_RIGHT}
+    };
+
     // Connect minimize and close buttons
     connect(ui->minimizeBtn, &QPushButton::clicked, this, &MainWindow::minimizeWindow);
-    connect(ui->closeBtn, &QPushButton::clicked, this, &MainWindow::close);
+    connect(ui->closeBtn, &QPushButton::clicked, this, &MainWindow::closeAllWindows);
 
     // Read qt_key_to_win_vk.json and set to array
     QFile qtToWinVkFile(QCoreApplication::applicationDirPath() + "/qt_key_to_win_vk.json");
@@ -37,8 +39,10 @@ MainWindow::MainWindow(QWidget *parent)
     QByteArray userDataData = userDataFile.readAll();
     userDataFile.close();
     QJsonDocument userDataDoc = QJsonDocument::fromJson(userDataData);
-    QJsonArray stratagems = userDataDoc.object().value("equipped_stratagems").toArray();
+    QJsonArray equippedStratagemsArray = userDataDoc.object().value("equipped_stratagems").toArray();
     QJsonArray keybinds = userDataDoc.object().value("keybinds").toArray();
+
+    equippedStratagems.resize(10);
 
     // Connect stratagem buttons
     for (int i = 0; i <= 7; ++i) {
@@ -51,9 +55,12 @@ MainWindow::MainWindow(QWidget *parent)
         QPushButton *keybindBtn = this->findChild<QPushButton*>(keybindBtnName);
 
         //Set stratagem icon
-        QString stratName = stratagems[i].toString();
+        QString stratName = equippedStratagemsArray[i].toString();
         QString iconPath = QString(":/thumbs/StratagemIcons/%1.png").arg(stratName);
         stratagemBtn->setIcon(QIcon(iconPath));
+
+        //Set into equipped stratagems array
+        equippedStratagems[i] = stratName;
 
         //Set keybind text
         QJsonObject keybindObject = keybinds[i].toObject();
@@ -77,6 +84,31 @@ MainWindow::MainWindow(QWidget *parent)
         connect(keybindBtn, &QPushButton::clicked, this, [=]() {
             onKeybindClicked(i);
         });
+    }
+
+    //Build stratagems hash table
+    QFile stratagemsFile(QCoreApplication::applicationDirPath() + "/stratagems.json");
+    if (!stratagemsFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open file:" << stratagemsFile.errorString();
+    }
+    QByteArray stratagemsData = stratagemsFile.readAll();
+    stratagemsFile.close();
+    QJsonDocument stratagemsDoc = QJsonDocument::fromJson(stratagemsData);
+    QJsonArray array = stratagemsDoc.array();
+    for (int i = 0; i < array.size(); ++i) {
+        const QJsonValue &value = array.at(i);
+        QJsonObject obj = value.toObject();
+
+        QString name = obj["name"].toString();
+        QJsonArray seqArray = obj["sequence"].toArray();
+
+        QVector<QString> sequence;
+        for (int i = 0; i < seqArray.size(); ++i) {
+            const QJsonValue &seqVal = seqArray.at(i);
+            sequence.append(seqVal.toString());
+        }
+
+        stratagems.insert(name, sequence);
     }
 
     //this->adjustSize();
@@ -152,16 +184,29 @@ void MainWindow::minimizeWindow() {
     this->showMinimized();
 }
 
+void MainWindow::closeAllWindows() {
+    //Find and close select stratagem window if it's exists
+    const auto topWidgets = QApplication::topLevelWidgets();
+    for (QWidget *widget : topWidgets) {
+        stratagemPicker = qobject_cast<StratagemPicker*>(widget);
+        if (stratagemPicker)
+            break;
+    }
+
+    //Close main window
+    this->close();
+}
+
 void MainWindow::onStratagemClicked(int number) {
     //Open window displaying stratagems
     if (!stratagemPicker) {
-        stratagemPicker = new StratagemPicker(nullptr); // create it once
+        stratagemPicker = new StratagemPicker(this); // create it once
     }
     stratagemPicker->show();   // show window
     stratagemPicker->raise();  // bring to front
     stratagemPicker->activateWindow();
 
-    qDebug() << "Stratagem button pressed:" << number;
+    selectedStratagemNumber = number;
 }
 
 void MainWindow::onKeybindClicked(int number) {
@@ -180,10 +225,107 @@ void MainWindow::onKeybindClicked(int number) {
     selectedKeybindNumber = number;
 }
 
+WORD MainWindow::getVkCode(const QString &keyStr) {
+    if (keyMap.contains(keyStr))
+        return keyMap.value(keyStr);
+    return 0; // 0 means key not found
+}
+
+void pressKey(WORD key) {
+    INPUT input = {0};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = key; // virtual key code, e.g., VK_A
+    input.ki.dwFlags = 0; // 0 = key press
+    SendInput(1, &input, sizeof(INPUT));
+}
+
+void releaseKey(WORD key) {
+    INPUT input = {0};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = key;
+    input.ki.dwFlags = KEYEVENTF_KEYUP; // key release
+    SendInput(1, &input, sizeof(INPUT));
+}
+
 void MainWindow::onHotkeyPressed(int hotkeyNumber)
 {
-    qDebug() << "Hotkey pressed!" << hotkeyNumber;
-    // Put your code here
+    qDebug() << "Hotkey pressed: " << hotkeyNumber;
+    //Change button color to green
+
+
+    // Activate stratagem number 'hotkeyNumber'
+    QString stratagemToActivate = equippedStratagems[hotkeyNumber];
+    QVector<QString> sequence = stratagems[stratagemToActivate];
+
+    pressKey(VK_LCONTROL);
+    QThread::msleep(50);
+    for (const QString &keyStr : sequence) {
+        WORD keyCode = getVkCode(keyStr);
+
+        QThread::msleep(50);
+        pressKey(keyCode);
+        QThread::msleep(50);
+        releaseKey(keyCode);
+    }
+    QThread::msleep(50);
+    releaseKey(VK_LCONTROL);
+
+    //Change color button back
+
+
+}
+
+void MainWindow::setStratagem(const QString &stratagemName)
+{
+    //Set icon
+    QString iconPath = QString(":/thumbs/StratagemIcons/%1.png").arg(stratagemName);
+    QString buttonName = QString("stratagemBtn%1").arg(selectedStratagemNumber);
+    QPushButton *button = findChild<QPushButton *>(buttonName);
+    button->setIcon(QIcon(iconPath));
+
+    //Set stratagem name to 'keybinds' QVector - [i] = stratagemName
+    equippedStratagems[selectedStratagemNumber] = stratagemName;
+
+    // Save selected stratagem to user_data.json -> equipped_stratagems -  [i] = stratagemName
+    QFile file("user_data.json");
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "Failed to open file for reading.";
+        return;
+    }
+
+    // Parse existing JSON
+    QByteArray data = file.readAll();
+    file.close();
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (!doc.isObject()) {
+        qDebug() << "JSON is not an object.";
+        return;
+    }
+
+    QJsonObject root = doc.object();
+
+    // Get the "equipped_stratagems" array
+    QJsonArray equippedStratagemsArray = root.value("equipped_stratagems").toArray();
+    if (selectedStratagemNumber < 0 || selectedStratagemNumber >= equippedStratagemsArray.size()) {
+        qDebug() << "Invalid stratagem index:" << selectedStratagemNumber;
+        return;
+    }
+
+    // Replace element
+    equippedStratagemsArray[selectedStratagemNumber] = stratagemName;
+
+    // Update root object
+    root["equipped_stratagems"] = equippedStratagemsArray;
+
+    // // Write back to file
+    file.setFileName("user_data.json");
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        qDebug() << "Failed to open file for writing.";
+        return;
+    }
+    QJsonDocument saveDoc(root);
+    file.write(saveDoc.toJson(QJsonDocument::Indented));
+    file.close();
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
@@ -303,6 +445,4 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     QJsonDocument saveDoc(root);
     file.write(saveDoc.toJson(QJsonDocument::Indented));
     file.close();
-
-    qDebug() << "Keybind updated successfully.";
 }
