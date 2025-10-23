@@ -73,7 +73,14 @@ MainWindow::MainWindow(QWidget *parent)
                 reinterpret_cast<HWND>(this->winId()), // window handle
                 i,                                              // hotkey ID (must be unique)
                 0,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
-                keybindKeyCode)) {                              // key code ('H' key)
+                keybindKeyCode)) {                              // key code
+            qDebug() << "Failed to register hotkey!";
+        }
+        if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
+                reinterpret_cast<HWND>(this->winId()), // window handle
+                i + 100,                                              // hotkey ID (must be unique)
+                MOD_SHIFT,                                              // shift modifier
+                keybindKeyCode)) {                              // key code
             qDebug() << "Failed to register hotkey!";
         }
 
@@ -111,6 +118,15 @@ MainWindow::MainWindow(QWidget *parent)
         stratagems.insert(name, sequence);
     }
 
+    //Register macro disabled key code
+    if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
+            reinterpret_cast<HWND>(this->winId()), // window handle
+            999999,                                              // hotkey ID (must be unique)
+            0,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
+            0xBE)) {                              // key code ('A' key)
+        qDebug() << "Failed to register macro disabled hotkey!";
+    }
+
     //this->adjustSize();
 
     // Make window 90% opaque
@@ -123,10 +139,32 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     for (int i = 0; i <= 7; ++i) {
-        UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), i);
+        UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), i); // Stratagem hotkeys
+        UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), i + 100); // Stratagem hotkeys
     }
+    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), 999999); // Macro disabled hotkey
     delete ui;
     delete stratagemPicker;
+}
+
+void MainWindow::toggleDisableMacro() {
+    // macroDisabled = !macroDisabled;
+
+    // if (macroDisabled == true) {
+    //     ui->MacroDisabledBtn->setStyleSheet(
+    //         "QPushButton { background-color: rgb(15, 15, 15); color: rgb(255,0,0); }"
+    //         "QPushButton:hover { background-color: #202020; /* slightly lighter */ }"
+    //         "QPushButton:pressed { background-color: #404040; /* lighter when pressed */ }"
+    //     );
+    //     ui->MacroDisabledBtn->setText("Disabled");
+    // } else if (macroDisabled == false) {
+    //     ui->MacroDisabledBtn->setStyleSheet(
+    //         "QPushButton { background-color: rgb(15, 15, 15); color: rgb(0,255,0); }"
+    //         "QPushButton:hover { background-color: #202020; /* slightly lighter */ }"
+    //         "QPushButton:pressed { background-color: #404040; /* lighter when pressed */ }"
+    //     );
+    //     ui->MacroDisabledBtn->setText("Enabled");
+    // }
 }
 
 bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
@@ -134,10 +172,14 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr
     if (eventType == "windows_generic_MSG") {
         MSG* msg = static_cast<MSG*>(message);
         if (msg->message == WM_HOTKEY) {
-            if (msg->wParam >= 0 && msg->wParam <= 7) {
-                int keyCode = ((msg->lParam >> 16) & 0xFFFF);
-                onHotkeyPressed(msg->wParam, keyCode);
-                return true; // handled
+            int hotkeyId = msg->wParam;
+            if (hotkeyId == 999999) { // Macro disabled
+                toggleDisableMacro();
+                return true;
+            } else if (hotkeyId >= 0 && hotkeyId <= 107) { // Stratagem
+                int keyCode = hotkeyId;
+                onHotkeyPressed(hotkeyId, keyCode);
+                return true;
             }
         }
     }
@@ -262,16 +304,20 @@ void releaseKey(WORD key) {
 
 void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
 {
-    //Check if macro is enabled
+    if (hotkeyNumber >= 100) { // If the hotkey has a modifier
+        hotkeyNumber -= 100;
+    }
+    qDebug() << "Hotkey pressed: " << hotkeyNumber;
 
-
-    //Check if window selected is 'HELLDIVERS 2'
+    //Sanity checks
     QString activeWindowTitle = getActiveWindowTitle();
-    if (activeWindowTitle != "HELLDIVERS™ 2") {
+    if (macroDisabled == true) { // Check if macro is enabled
+        return;
+    } else if (activeWindowTitle != "HELLDIVERS™ 2") { // Check if window selected is 'HELLDIVERS 2'
         return;
     }
 
-    qDebug() << "Hotkey pressed: " << hotkeyNumber;
+
 
     //Change button color to green
 
@@ -413,13 +459,21 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 
     //Unbind last keybind
     UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), selectedKeybindNumber);
+    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), selectedKeybindNumber+100);
 
     //Bind new keybind
     if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
             reinterpret_cast<HWND>(this->winId()), // window handle
             selectedKeybindNumber,                                              // hotkey ID (must be unique)
             0,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
-            vkKeybindKeyCode)) {                              // key code ('H' key)
+            vkKeybindKeyCode)) {                              // key code
+        qDebug() << "Failed to register hotkey!";
+    }
+    if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
+            reinterpret_cast<HWND>(this->winId()), // window handle
+            selectedKeybindNumber+100,                                              // hotkey ID (must be unique)
+            4,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
+            vkKeybindKeyCode)) {                              // key code
         qDebug() << "Failed to register hotkey!";
     }
 
