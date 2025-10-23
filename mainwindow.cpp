@@ -135,7 +135,8 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr
         MSG* msg = static_cast<MSG*>(message);
         if (msg->message == WM_HOTKEY) {
             if (msg->wParam >= 0 && msg->wParam <= 7) {
-                onHotkeyPressed(msg->wParam);
+                int keyCode = ((msg->lParam >> 16) & 0xFFFF);
+                onHotkeyPressed(msg->wParam, keyCode);
                 return true; // handled
             }
         }
@@ -190,6 +191,7 @@ void MainWindow::closeAllWindows() {
     for (QWidget *widget : topWidgets) {
         stratagemPicker = qobject_cast<StratagemPicker*>(widget);
         if (stratagemPicker)
+            stratagemPicker->close();
             break;
     }
 
@@ -231,6 +233,17 @@ WORD MainWindow::getVkCode(const QString &keyStr) {
     return 0; // 0 means key not found
 }
 
+QString getActiveWindowTitle() {
+    HWND hwnd = GetForegroundWindow(); // get handle to active window
+    if (!hwnd)
+        return "No active window";
+
+    wchar_t title[256];
+    GetWindowTextW(hwnd, title, sizeof(title) / sizeof(wchar_t));
+
+    return QString::fromWCharArray(title);
+}
+
 void pressKey(WORD key) {
     INPUT input = {0};
     input.type = INPUT_KEYBOARD;
@@ -247,9 +260,19 @@ void releaseKey(WORD key) {
     SendInput(1, &input, sizeof(INPUT));
 }
 
-void MainWindow::onHotkeyPressed(int hotkeyNumber)
+void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
 {
+    //Check if macro is enabled
+
+
+    //Check if window selected is 'HELLDIVERS 2'
+    QString activeWindowTitle = getActiveWindowTitle();
+    if (activeWindowTitle != "HELLDIVERS™ 2") {
+        return;
+    }
+
     qDebug() << "Hotkey pressed: " << hotkeyNumber;
+
     //Change button color to green
 
 

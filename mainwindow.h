@@ -38,7 +38,7 @@ private:
     int stringHexToInt(const QString &hexStr);
     void onStratagemClicked(int);
     void onKeybindClicked(int);
-    void onHotkeyPressed(int);
+    void onHotkeyPressed(int, int);
     void keyPressEvent(QKeyEvent *event) override;
     void minimizeWindow();
     void closeAllWindows();
