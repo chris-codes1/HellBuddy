@@ -34,6 +34,8 @@ if __name__ == "__main__":
     folder = os.path.join(base_dir, "StratagemIcons")
     if os.path.exists(folder):
         process_folder(folder, tolerance=30)  # tolerance here
-        print("Finished trimming blackspace from all PNGs.")
+        print("\nFinished trimming blackspace from all PNGs.")
     else:
         print("Folder 'StratagemIcons' not found.")
+
+input("")
