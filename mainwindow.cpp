@@ -9,12 +9,29 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     setWindowTitle("HellBuddy");
 
+    // Setup Helldivers 2 keybinds
+    QFile helldiversKeybindsFile(QCoreApplication::applicationDirPath() + "/helldivers_keybinds.json");
+    if (!helldiversKeybindsFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open file:" << helldiversKeybindsFile.errorString();
+    }
+
+    QByteArray helldiversKeybindsData = helldiversKeybindsFile.readAll();
+    helldiversKeybindsFile.close();
+
+    QJsonDocument helldiversKeybindsDoc = QJsonDocument::fromJson(helldiversKeybindsData);
+    if (!helldiversKeybindsDoc.isObject()) {
+        qWarning() << "Invalid JSON structure";
+    }
+
+    QJsonObject hdkbObj = helldiversKeybindsDoc.object();
+
     //Key map
     keyMap = {
-        {"W", VK_UP}, // Set to arrow keys
-        {"A", VK_LEFT},
-        {"S", VK_DOWN},
-        {"D", VK_RIGHT}
+        {"W", stringHexToInt(hdkbObj.value("up").toString())},
+        {"A", stringHexToInt(hdkbObj.value("left").toString())},
+        {"S", stringHexToInt(hdkbObj.value("down").toString())},
+        {"D", stringHexToInt(hdkbObj.value("right").toString())},
+        {"stratagem_menu", stringHexToInt(hdkbObj.value("stratagem_menu").toString())}
     };
 
     // Connect minimize and close buttons
@@ -269,12 +286,6 @@ void MainWindow::onKeybindClicked(int number) {
     selectedKeybindNumber = number;
 }
 
-WORD MainWindow::getVkCode(const QString &keyStr) {
-    if (keyMap.contains(keyStr))
-        return keyMap.value(keyStr);
-    return 0; // 0 means key not found
-}
-
 QString getActiveWindowTitle() {
     HWND hwnd = GetForegroundWindow(); // get handle to active window
     if (!hwnd)
@@ -304,20 +315,21 @@ void releaseKey(WORD key) {
 
 void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
 {
-    if (hotkeyNumber >= 100) { // If the hotkey has a modifier
-        hotkeyNumber -= 100;
-    }
     qDebug() << "Hotkey pressed: " << hotkeyNumber;
 
     //Sanity checks
-    QString activeWindowTitle = getActiveWindowTitle();
-    if (macroDisabled == true) { // Check if macro is enabled
-        return;
-    } else if (activeWindowTitle != "HELLDIVERS™ 2") { // Check if window selected is 'HELLDIVERS 2'
-        return;
+    // QString activeWindowTitle = getActiveWindowTitle();
+    // if (macroDisabled == true) { // Check if macro is enabled
+    //     return;
+    // } else if (activeWindowTitle != "HELLDIVERS™ 2") { // Check if window selected is 'HELLDIVERS 2'
+    //     return;
+    // }
+
+    qDebug() << "Sanity checks completed, macro activated";
+
+    if (hotkeyNumber >= 100) { // If the hotkey has a modifier
+        hotkeyNumber -= 100;
     }
-
-
 
     //Change button color to green
 
@@ -326,18 +338,16 @@ void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
     QString stratagemToActivate = equippedStratagems[hotkeyNumber];
     QVector<QString> sequence = stratagems[stratagemToActivate];
 
-    pressKey(VK_LCONTROL);
+    pressKey(keyMap.value("stratagem_menu"));
     QThread::msleep(50);
     for (const QString &keyStr : sequence) {
-        WORD keyCode = getVkCode(keyStr);
-
         QThread::msleep(50);
-        pressKey(keyCode);
+        pressKey(keyMap.value(keyStr));
         QThread::msleep(50);
-        releaseKey(keyCode);
+        releaseKey(keyMap.value(keyStr));
     }
     QThread::msleep(50);
-    releaseKey(VK_LCONTROL);
+    releaseKey(keyMap.value("stratagem_menu"));
 
     //Change color button back
 

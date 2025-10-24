@@ -1,16 +1,16 @@
 {
   "equipped_stratagems": [
-    "Reinforce",
     "Resupply",
+    "Warp Pack",
+    "Speargun",
+    "Eagle 500kg Bomb",
+    "Orbital Napalm Barrage",
+    "Reinforce",
     "Eagle Rearm",
-    "Orbital Precision Strike",
-    "Machine Gun",
-    "Machine Gun Sentry",
-    "Gatling Sentry",
-    "Orbital Gatling Barrage",
+    "Hellbomb",
     "Orbital Napalm Barrage",
     "Eagle Airstrike"
-  ],
+],
   "keybinds": [
     {"letter": "T", "key_code": "0x54"},
     {"letter": "Y", "key_code": "0x59"},
