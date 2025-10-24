@@ -9,12 +9,29 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     setWindowTitle("HellBuddy");
 
+    // Setup Helldivers 2 keybinds
+    QFile helldiversKeybindsFile(QCoreApplication::applicationDirPath() + "/helldivers_keybinds.json");
+    if (!helldiversKeybindsFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open file:" << helldiversKeybindsFile.errorString();
+    }
+
+    QByteArray helldiversKeybindsData = helldiversKeybindsFile.readAll();
+    helldiversKeybindsFile.close();
+
+    QJsonDocument helldiversKeybindsDoc = QJsonDocument::fromJson(helldiversKeybindsData);
+    if (!helldiversKeybindsDoc.isObject()) {
+        qWarning() << "Invalid JSON structure";
+    }
+
+    QJsonObject hdkbObj = helldiversKeybindsDoc.object();
+
     //Key map
     keyMap = {
-        {"W", VK_UP}, // Set to arrow keys
-        {"A", VK_LEFT},
-        {"S", VK_DOWN},
-        {"D", VK_RIGHT}
+        {"W", stringHexToInt(hdkbObj.value("up").toString())},
+        {"A", stringHexToInt(hdkbObj.value("left").toString())},
+        {"S", stringHexToInt(hdkbObj.value("down").toString())},
+        {"D", stringHexToInt(hdkbObj.value("right").toString())},
+        {"stratagem_menu", stringHexToInt(hdkbObj.value("stratagem_menu").toString())}
     };
 
     // Connect minimize and close buttons
@@ -73,7 +90,14 @@ MainWindow::MainWindow(QWidget *parent)
                 reinterpret_cast<HWND>(this->winId()), // window handle
                 i,                                              // hotkey ID (must be unique)
                 0,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
-                keybindKeyCode)) {                              // key code ('H' key)
+                keybindKeyCode)) {                              // key code
+            qDebug() << "Failed to register hotkey!";
+        }
+        if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
+                reinterpret_cast<HWND>(this->winId()), // window handle
+                i + 100,                                              // hotkey ID (must be unique)
+                MOD_SHIFT,                                              // shift modifier
+                keybindKeyCode)) {                              // key code
             qDebug() << "Failed to register hotkey!";
         }
 
@@ -111,6 +135,15 @@ MainWindow::MainWindow(QWidget *parent)
         stratagems.insert(name, sequence);
     }
 
+    //Register macro disabled key code
+    if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
+            reinterpret_cast<HWND>(this->winId()), // window handle
+            999999,                                              // hotkey ID (must be unique)
+            0,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
+            0xBE)) {                              // key code ('A' key)
+        qDebug() << "Failed to register macro disabled hotkey!";
+    }
+
     //this->adjustSize();
 
     // Make window 90% opaque
@@ -123,10 +156,32 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     for (int i = 0; i <= 7; ++i) {
-        UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), i);
+        UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), i); // Stratagem hotkeys
+        UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), i + 100); // Stratagem hotkeys
     }
+    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), 999999); // Macro disabled hotkey
     delete ui;
     delete stratagemPicker;
+}
+
+void MainWindow::toggleDisableMacro() {
+    // macroDisabled = !macroDisabled;
+
+    // if (macroDisabled == true) {
+    //     ui->MacroDisabledBtn->setStyleSheet(
+    //         "QPushButton { background-color: rgb(15, 15, 15); color: rgb(255,0,0); }"
+    //         "QPushButton:hover { background-color: #202020; /* slightly lighter */ }"
+    //         "QPushButton:pressed { background-color: #404040; /* lighter when pressed */ }"
+    //     );
+    //     ui->MacroDisabledBtn->setText("Disabled");
+    // } else if (macroDisabled == false) {
+    //     ui->MacroDisabledBtn->setStyleSheet(
+    //         "QPushButton { background-color: rgb(15, 15, 15); color: rgb(0,255,0); }"
+    //         "QPushButton:hover { background-color: #202020; /* slightly lighter */ }"
+    //         "QPushButton:pressed { background-color: #404040; /* lighter when pressed */ }"
+    //     );
+    //     ui->MacroDisabledBtn->setText("Enabled");
+    // }
 }
 
 bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
@@ -134,9 +189,14 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr
     if (eventType == "windows_generic_MSG") {
         MSG* msg = static_cast<MSG*>(message);
         if (msg->message == WM_HOTKEY) {
-            if (msg->wParam >= 0 && msg->wParam <= 7) {
-                onHotkeyPressed(msg->wParam);
-                return true; // handled
+            int hotkeyId = msg->wParam;
+            if (hotkeyId == 999999) { // Macro disabled
+                toggleDisableMacro();
+                return true;
+            } else if (hotkeyId >= 0 && hotkeyId <= 107) { // Stratagem
+                int keyCode = hotkeyId;
+                onHotkeyPressed(hotkeyId, keyCode);
+                return true;
             }
         }
     }
@@ -190,6 +250,7 @@ void MainWindow::closeAllWindows() {
     for (QWidget *widget : topWidgets) {
         stratagemPicker = qobject_cast<StratagemPicker*>(widget);
         if (stratagemPicker)
+            stratagemPicker->close();
             break;
     }
 
@@ -225,10 +286,15 @@ void MainWindow::onKeybindClicked(int number) {
     selectedKeybindNumber = number;
 }
 
-WORD MainWindow::getVkCode(const QString &keyStr) {
-    if (keyMap.contains(keyStr))
-        return keyMap.value(keyStr);
-    return 0; // 0 means key not found
+QString getActiveWindowTitle() {
+    HWND hwnd = GetForegroundWindow(); // get handle to active window
+    if (!hwnd)
+        return "No active window";
+
+    wchar_t title[256];
+    GetWindowTextW(hwnd, title, sizeof(title) / sizeof(wchar_t));
+
+    return QString::fromWCharArray(title);
 }
 
 void pressKey(WORD key) {
@@ -247,32 +313,53 @@ void releaseKey(WORD key) {
     SendInput(1, &input, sizeof(INPUT));
 }
 
-void MainWindow::onHotkeyPressed(int hotkeyNumber)
+void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
 {
     qDebug() << "Hotkey pressed: " << hotkeyNumber;
-    //Change button color to green
 
+    //Sanity checks
+    QString activeWindowTitle = getActiveWindowTitle();
+    if (macroDisabled == true) { // Check if macro is enabled
+        return;
+    } else if (activeWindowTitle != "HELLDIVERS™ 2") { // Check if window selected is 'HELLDIVERS 2'
+        return;
+    }
+
+    qDebug() << "Sanity checks completed, macro activated";
+
+    if (hotkeyNumber >= 100) { // If the hotkey has a modifier
+        hotkeyNumber -= 100;
+    }
+
+    //Change button color to green
+    // QString stratagemBtnName = QString("stratagemBtn%1").arg(hotkeyNumber);
+    // QPushButton *stratagemBtn = this->findChild<QPushButton*>(stratagemBtnName);
+    // stratagemBtn->setStyleSheet(
+    //     "QPushButton:hover { background-color: rgb(32, 32, 32); }"
+    //     "QPushButton:pressed { background-color: rgb(64, 64, 64); }"
+    // );
 
     // Activate stratagem number 'hotkeyNumber'
     QString stratagemToActivate = equippedStratagems[hotkeyNumber];
     QVector<QString> sequence = stratagems[stratagemToActivate];
 
-    pressKey(VK_LCONTROL);
+    pressKey(keyMap.value("stratagem_menu"));
     QThread::msleep(50);
     for (const QString &keyStr : sequence) {
-        WORD keyCode = getVkCode(keyStr);
-
         QThread::msleep(50);
-        pressKey(keyCode);
+        pressKey(keyMap.value(keyStr));
         QThread::msleep(50);
-        releaseKey(keyCode);
+        releaseKey(keyMap.value(keyStr));
     }
     QThread::msleep(50);
-    releaseKey(VK_LCONTROL);
+    releaseKey(keyMap.value("stratagem_menu"));
 
-    //Change color button back
-
-
+    // Change color button back
+    // stratagemBtn->setStyleSheet(
+    //     "QPushButton { background-color: rgb(15, 15, 15); }"
+    //     "QPushButton:hover { background-color: rgb(32, 32, 32); }"
+    //     "QPushButton:pressed { background-color: rgb(64, 64, 64); }"
+    // );
 }
 
 void MainWindow::setStratagem(const QString &stratagemName)
@@ -390,13 +477,21 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 
     //Unbind last keybind
     UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), selectedKeybindNumber);
+    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), selectedKeybindNumber+100);
 
     //Bind new keybind
     if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
             reinterpret_cast<HWND>(this->winId()), // window handle
             selectedKeybindNumber,                                              // hotkey ID (must be unique)
             0,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
-            vkKeybindKeyCode)) {                              // key code ('H' key)
+            vkKeybindKeyCode)) {                              // key code
+        qDebug() << "Failed to register hotkey!";
+    }
+    if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
+            reinterpret_cast<HWND>(this->winId()), // window handle
+            selectedKeybindNumber+100,                                              // hotkey ID (must be unique)
+            4,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
+            vkKeybindKeyCode)) {                              // key code
         qDebug() << "Failed to register hotkey!";
     }
 

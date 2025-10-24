@@ -38,6 +38,7 @@ StratagemPicker::StratagemPicker(MainWindow *mainWindow, QWidget *parent)
         QJsonObject obj = val.toObject();
 
         QString stratagemName = obj["name"].toString();
+
         //QJsonArray sequenceArray = obj["sequence"].toArray();
 
         QPushButton *stratagemBtn = new QPushButton(this);

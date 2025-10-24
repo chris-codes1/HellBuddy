@@ -36,9 +36,10 @@ protected:
 
 private:
     int stringHexToInt(const QString &hexStr);
+    void toggleDisableMacro();
     void onStratagemClicked(int);
     void onKeybindClicked(int);
-    void onHotkeyPressed(int);
+    void onHotkeyPressed(int, int);
     void keyPressEvent(QKeyEvent *event) override;
     void minimizeWindow();
     void closeAllWindows();
@@ -65,6 +66,9 @@ private:
     int selectedKeybindNumber;
     QString oldKeybindBtnText;
     QPushButton *selectedKeybindBtn = nullptr;
+
+    //Macro disable feature
+    bool macroDisabled = false;
 
     //Stratagem picker window
     StratagemPicker *stratagemPicker;
