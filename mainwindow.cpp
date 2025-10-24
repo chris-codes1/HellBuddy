@@ -332,7 +332,12 @@ void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
     }
 
     //Change button color to green
-
+    // QString stratagemBtnName = QString("stratagemBtn%1").arg(hotkeyNumber);
+    // QPushButton *stratagemBtn = this->findChild<QPushButton*>(stratagemBtnName);
+    // stratagemBtn->setStyleSheet(
+    //     "QPushButton:hover { background-color: rgb(32, 32, 32); }"
+    //     "QPushButton:pressed { background-color: rgb(64, 64, 64); }"
+    // );
 
     // Activate stratagem number 'hotkeyNumber'
     QString stratagemToActivate = equippedStratagems[hotkeyNumber];
@@ -349,9 +354,12 @@ void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
     QThread::msleep(50);
     releaseKey(keyMap.value("stratagem_menu"));
 
-    //Change color button back
-
-
+    // Change color button back
+    // stratagemBtn->setStyleSheet(
+    //     "QPushButton { background-color: rgb(15, 15, 15); }"
+    //     "QPushButton:hover { background-color: rgb(32, 32, 32); }"
+    //     "QPushButton:pressed { background-color: rgb(64, 64, 64); }"
+    // );
 }
 
 void MainWindow::setStratagem(const QString &stratagemName)

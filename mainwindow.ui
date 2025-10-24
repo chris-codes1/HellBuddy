@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>169</width>
-    <height>389</height>
+    <width>168</width>
+    <height>386</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -263,7 +263,7 @@ QPushButton:pressed {
        <number>0</number>
       </property>
       <property name="spacing">
-       <number>3</number>
+       <number>0</number>
       </property>
       <item row="3" column="1">
        <widget class="QFrame" name="stratagem7">
@@ -280,13 +280,16 @@ QPushButton:pressed {
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(15, 15, 15);</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Shape::Box</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Shadow::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_6">
          <property name="spacing">
@@ -322,12 +325,17 @@ QPushButton:pressed {
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+            <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
+	color: rgb(255,255,255);
+}
+
+QPushButton:hover {
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -357,15 +365,16 @@ QPushButton:pressed {
            </property>
            <property name="styleSheet">
             <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
 	color: rgb(255,255,255);
 }
 
 QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -391,13 +400,16 @@ QPushButton:pressed {
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(15, 15, 15);</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Shape::Box</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Shadow::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_10">
          <property name="spacing">
@@ -433,12 +445,17 @@ QPushButton:pressed {
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+            <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
+	color: rgb(255,255,255);
+}
+
+QPushButton:hover {
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -471,15 +488,16 @@ QPushButton:pressed {
            </property>
            <property name="styleSheet">
             <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
 	color: rgb(255,255,255);
 }
 
 QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -505,13 +523,16 @@ QPushButton:pressed {
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(15, 15, 15);</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Shape::Box</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Shadow::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <property name="spacing">
@@ -547,12 +568,17 @@ QPushButton:pressed {
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+            <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
+	color: rgb(255,255,255);
+}
+
+QPushButton:hover {
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -582,15 +608,16 @@ QPushButton:pressed {
            </property>
            <property name="styleSheet">
             <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
 	color: rgb(255,255,255);
 }
 
 QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -616,13 +643,16 @@ QPushButton:pressed {
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(15, 15, 15);</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Shape::Box</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Shadow::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_12">
          <property name="spacing">
@@ -658,12 +688,17 @@ QPushButton:pressed {
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+            <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
+	color: rgb(255,255,255);
+}
+
+QPushButton:hover {
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -693,15 +728,16 @@ QPushButton:pressed {
            </property>
            <property name="styleSheet">
             <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
 	color: rgb(255,255,255);
 }
 
 QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -727,13 +763,16 @@ QPushButton:pressed {
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(15, 15, 15);</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Shape::Box</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Shadow::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <property name="spacing">
@@ -769,12 +808,17 @@ QPushButton:pressed {
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+            <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
+	color: rgb(255,255,255);
+}
+
+QPushButton:hover {
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -804,15 +848,16 @@ QPushButton:pressed {
            </property>
            <property name="styleSheet">
             <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
 	color: rgb(255,255,255);
 }
 
 QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -838,13 +883,16 @@ QPushButton:pressed {
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(15, 15, 15);</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Shape::Box</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Shadow::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <property name="spacing">
@@ -880,12 +928,17 @@ QPushButton:pressed {
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+            <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
+	color: rgb(255,255,255);
+}
+
+QPushButton:hover {
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -915,15 +968,16 @@ QPushButton:pressed {
            </property>
            <property name="styleSheet">
             <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
 	color: rgb(255,255,255);
 }
 
 QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -949,13 +1003,16 @@ QPushButton:pressed {
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(15, 15, 15);</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Shape::Box</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Shadow::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <property name="spacing">
@@ -991,12 +1048,17 @@ QPushButton:pressed {
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+            <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
+	color: rgb(255,255,255);
+}
+
+QPushButton:hover {
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -1026,15 +1088,16 @@ QPushButton:pressed {
            </property>
            <property name="styleSheet">
             <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
 	color: rgb(255,255,255);
 }
 
 QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -1060,13 +1123,16 @@ QPushButton:pressed {
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(15, 15, 15);</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Shape::Box</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Shadow::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_11">
          <property name="spacing">
@@ -1102,12 +1168,17 @@ QPushButton:pressed {
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+            <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
+	color: rgb(255,255,255);
+}
+
+QPushButton:hover {
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -1137,15 +1208,16 @@ QPushButton:pressed {
            </property>
            <property name="styleSheet">
             <string notr="true">QPushButton {
+	background-color: rgb(15, 15, 15);
 	color: rgb(255,255,255);
 }
 
 QPushButton:hover {
-    background-color: #202020; /* slightly lighter */
+    background-color: #202020;
 }
 
 QPushButton:pressed {
-    background-color: #404040; /* lighter when pressed */
+    background-color: #404040;
 }</string>
            </property>
            <property name="text">
@@ -1160,11 +1232,11 @@ QPushButton:pressed {
     </item>
     <item>
      <widget class="QPushButton" name="MacroDisabledBtn">
-      <property name="toolTip">
-       <string>Press . to toggle</string>
-      </property>
       <property name="visible">
        <bool>false</bool>
+      </property>
+      <property name="toolTip">
+       <string>Press . to toggle</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QPushButton {
