@@ -318,12 +318,12 @@ void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
     qDebug() << "Hotkey pressed: " << hotkeyNumber;
 
     //Sanity checks
-    // QString activeWindowTitle = getActiveWindowTitle();
-    // if (macroDisabled == true) { // Check if macro is enabled
-    //     return;
-    // } else if (activeWindowTitle != "HELLDIVERS™ 2") { // Check if window selected is 'HELLDIVERS 2'
-    //     return;
-    // }
+    QString activeWindowTitle = getActiveWindowTitle();
+    if (macroDisabled == true) { // Check if macro is enabled
+        return;
+    } else if (activeWindowTitle != "HELLDIVERS™ 2") { // Check if window selected is 'HELLDIVERS 2'
+        return;
+    }
 
     qDebug() << "Sanity checks completed, macro activated";
 
