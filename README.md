@@ -38,3 +38,6 @@ Please contact me on Discord if you want to make a contribution! Here are steps 
 Showcase: https://www.youtube.com/watch?v=uEuhH0oc6Zs</br>
 How to download and use HellBuddy: https://www.youtube.com/watch?v=nnpVVKC2aq4
 
+# Links
+
+Discord server: https://discord.gg/XBjNg6eXSp
