@@ -7,10 +7,6 @@ HellBuddy is a macro software for the game HELLDIVERS 2 that inputs stratagems f
 
 HellBuddy includes a minimalist GUI, where stratagem macros and their respective keybinds can be easily rebound in just a few clicks. This allows you to change your setup to match your stratagem loadout on the fly with very few clicks required. HellBuddy is currently only compatible with Windows.
 
-# Optimization
-
-HellBuddy was made using the Qt framework in C++, and was designed to be lightweight and use as little system resources as possible. It will use very little memory and CPU, and shouldn't effect your FPS at all.
-
 # How to download / use HellBuddy
 
 <img src="hellbuddy.png" width="250" height="250" align="right" />
@@ -23,6 +19,10 @@ HellBuddy was made using the Qt framework in C++, and was designed to be lightwe
 7. Press the hotkey underneath a stratagem to activate the respective stratagem in-game
 8. Change the stratagems by clicking on them
 9. Change the hotkeys by clicking on them and pressing the new keybind
+
+# Optimization
+
+HellBuddy was made using the Qt framework in C++, and was designed to be lightweight and use as little system resources as possible. It will use very little memory and CPU, and shouldn't effect your FPS at all.
 
 # How can I contribute to this project?
 
