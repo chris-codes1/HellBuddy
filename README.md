@@ -27,7 +27,7 @@ HellBuddy was made using the Qt framework in C++, and was designed to be lightwe
 # How can I contribute to this project?
 
 Please contact me on Discord if you want to make a contribution! Here are steps for how to setup the project on your machine
-1. Ensure that the latest version of qt creator is installed.
+1. Ensure that the latest version of qt creator is installed
 2. Clone the repo
 3. Build the project
 4. Move everything from /JsonData into your build folder
