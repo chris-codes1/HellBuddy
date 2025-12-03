@@ -42,7 +42,7 @@ StratagemPicker::StratagemPicker(MainWindow *mainWindow, QWidget *parent)
         //QJsonArray sequenceArray = obj["sequence"].toArray();
 
         QPushButton *stratagemBtn = new QPushButton(this);
-        QString iconPath = QString(":/thumbs/StratagemIcons/%1.png").arg(stratagemName);
+        QString iconPath = QString(":/thumbs/StratagemIcons/%1.svg").arg(stratagemName);
         stratagemBtn->setIcon(QIcon(iconPath));
         stratagemBtn->setIconSize(QSize(50, 50));
         stratagemBtn->setToolTip(stratagemName);

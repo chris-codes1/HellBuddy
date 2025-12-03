@@ -66,7 +66,7 @@
   { "name": "Portable Hellbomb", "sequence": ["S", "D", "W", "W", "W"] },
   { "name": "Hover Pack", "sequence": ["S", "W", "W", "S", "A", "D"] },
   { "name": "One True Flag", "sequence": ["S", "A", "D", "D", "W"] },
-  { "name": "De-Escalator", "sequence": ["A", "D", "W", "A", "D"] },
+  { "name": "De-Escalator", "sequence": ["S", "D", "W", "A", "D"] },
   { "name": "Guard Dog ARC-3", "sequence": ["S", "W", "A", "W", "D", "A"] },
   { "name": "Epoch", "sequence": ["S", "A", "W", "A", "D"] },
   { "name": "Laser Sentry", "sequence": ["S", "W", "D", "S", "W", "D"] },
@@ -74,6 +74,9 @@
   { "name": "Solo Silo", "sequence": ["S", "W", "D", "S", "S"]},
   { "name": "Expendable Napalm", "sequence": ["S", "S", "A", "W", "A"]},
   { "name": "Speargun", "sequence": ["S", "D", "S", "A", "W", "D"]},
+  { "name": "Maxigun", "sequence": ["S", "A", "D", "S", "W", "W"] },
+  { "name": "Defoliation Tool", "sequence": ["S", "A", "D", "D", "S"] },
+  { "name": "Guard Dog Hot Dog", "sequence": ["S", "W", "A", "W", "A", "A"] },
   { "name": "Reinforce", "sequence": ["W", "S", "D", "A", "W"] },
   { "name": "SoS Beacon", "sequence": ["W", "S", "D", "W"] },
   { "name": "Resupply", "sequence": ["S", "S", "W", "D"] },
@@ -85,5 +88,8 @@
   { "name": "Upload Data", "sequence": ["A", "D", "W", "W", "W"] },
   { "name": "Seismic Probe", "sequence": ["W", "W", "A", "D", "S", "S"] },
   { "name": "SEAF Artillery", "sequence": ["D", "W", "W", "S"] },
-  { "name": "Hive Breaker Drill", "sequence": ["A", "W", "S", "D", "S", "S"] }
+  { "name": "Hive Breaker Drill", "sequence": ["A", "W", "S", "D", "S", "S"] },
+  { "name": "Maxigun", "sequence": ["S", "A", "D", "S", "W", "W"] },
+  { "name": "Defoliation Tool", "sequence": ["S", "A", "D", "D", "S"] },
+  { "name": "Guard Dog Hot Dog", "sequence": ["S", "W", "A", "W", "A", "A"] }
 ]

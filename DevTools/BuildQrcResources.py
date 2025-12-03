@@ -27,13 +27,12 @@ existing_files = {file_elem.text for file_elem in thumbs.findall("file")}
 new_pngs = 0
 existing_pngs = 0
 for filename in sorted(os.listdir(icons_folder)):
-    if filename.endswith(".png"):
-        relative_path = os.path.join("StratagemIcons", filename).replace("\\", "/")
-        if relative_path not in existing_files:
-            new_pngs += 1
-            ET.SubElement(thumbs, "file").text = relative_path
-        else:
-            existing_pngs += 1
+    relative_path = os.path.join("StratagemIcons", filename).replace("\\", "/")
+    if relative_path not in existing_files:
+        new_pngs += 1
+        ET.SubElement(thumbs, "file").text = relative_path
+    else:
+        existing_pngs += 1
 
 # Convert XML tree to a pretty-printed string
 xml_str = ET.tostring(root, encoding="utf-8")
