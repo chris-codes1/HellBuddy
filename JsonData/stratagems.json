@@ -66,7 +66,7 @@
   { "name": "Portable Hellbomb", "sequence": ["S", "D", "W", "W", "W"] },
   { "name": "Hover Pack", "sequence": ["S", "W", "W", "S", "A", "D"] },
   { "name": "One True Flag", "sequence": ["S", "A", "D", "D", "W"] },
-  { "name": "De-Escalator", "sequence": ["A", "D", "W", "A", "D"] },
+  { "name": "De-Escalator", "sequence": ["S", "D", "W", "A", "D"] },
   { "name": "Guard Dog ARC-3", "sequence": ["S", "W", "A", "W", "D", "A"] },
   { "name": "Epoch", "sequence": ["S", "A", "W", "A", "D"] },
   { "name": "Laser Sentry", "sequence": ["S", "W", "D", "S", "W", "D"] },
