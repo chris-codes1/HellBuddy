@@ -5,6 +5,10 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , stratagemPicker(nullptr)
+    , listeningForInput(false)     // ← add
+    , selectedKeybindNumber(-1)    // ← add
+    , selectedStratagemNumber(0)   // ← add
+    , macroDisabled(false)          // ← add
 {
     ui->setupUi(this);
     setWindowTitle("HellBuddy");
@@ -73,7 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
 
         //Set stratagem icon
         QString stratName = equippedStratagemsArray[i].toString();
-        QString iconPath = QString(":/thumbs/StratagemIcons/%1.png").arg(stratName);
+        QString iconPath = QString(":/thumbs/StratagemIcons/%1.svg").arg(stratName);
         stratagemBtn->setIcon(QIcon(iconPath));
 
         //Set into equipped stratagems array
@@ -161,7 +165,7 @@ MainWindow::~MainWindow()
     }
     UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), 999999); // Macro disabled hotkey
     delete ui;
-    delete stratagemPicker;
+    //delete stratagemPicker;
 }
 
 void MainWindow::toggleDisableMacro() {
@@ -249,9 +253,10 @@ void MainWindow::closeAllWindows() {
     const auto topWidgets = QApplication::topLevelWidgets();
     for (QWidget *widget : topWidgets) {
         stratagemPicker = qobject_cast<StratagemPicker*>(widget);
-        if (stratagemPicker)
+        if (stratagemPicker) {
             stratagemPicker->close();
             break;
+        }
     }
 
     //Close main window
@@ -319,11 +324,11 @@ void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
 
     //Sanity checks
     QString activeWindowTitle = getActiveWindowTitle();
-    if (macroDisabled == true) { // Check if macro is enabled
-        return;
-    } else if (activeWindowTitle != "HELLDIVERS™ 2") { // Check if window selected is 'HELLDIVERS 2'
-        return;
-    }
+    // if (macroDisabled == true) { // Check if macro is enabled
+    //     return;
+    // } else if (activeWindowTitle != "HELLDIVERS™ 2") { // Check if window selected is 'HELLDIVERS 2'
+    //     return;
+    // }
 
     qDebug() << "Sanity checks completed, macro activated";
 
@@ -365,7 +370,7 @@ void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
 void MainWindow::setStratagem(const QString &stratagemName)
 {
     //Set icon
-    QString iconPath = QString(":/thumbs/StratagemIcons/%1.png").arg(stratagemName);
+    QString iconPath = QString(":/thumbs/StratagemIcons/%1.svg").arg(stratagemName);
     QString buttonName = QString("stratagemBtn%1").arg(selectedStratagemNumber);
     QPushButton *button = findChild<QPushButton *>(buttonName);
     button->setIcon(QIcon(iconPath));
