@@ -88,8 +88,5 @@
   { "name": "Upload Data", "sequence": ["A", "D", "W", "W", "W"] },
   { "name": "Seismic Probe", "sequence": ["W", "W", "A", "D", "S", "S"] },
   { "name": "SEAF Artillery", "sequence": ["D", "W", "W", "S"] },
-  { "name": "Hive Breaker Drill", "sequence": ["A", "W", "S", "D", "S", "S"] },
-  { "name": "Maxigun", "sequence": ["S", "A", "D", "S", "W", "W"] },
-  { "name": "Defoliation Tool", "sequence": ["S", "A", "D", "D", "S"] },
-  { "name": "Guard Dog Hot Dog", "sequence": ["S", "W", "A", "W", "A", "A"] }
+  { "name": "Hive Breaker Drill", "sequence": ["A", "W", "S", "D", "S", "S"] }
 ]
