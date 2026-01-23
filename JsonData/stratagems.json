@@ -77,6 +77,7 @@
   { "name": "Maxigun", "sequence": ["S", "A", "D", "S", "W", "W"] },
   { "name": "Defoliation Tool", "sequence": ["S", "A", "D", "D", "S"] },
   { "name": "Guard Dog Hot Dog", "sequence": ["S", "W", "A", "W", "A", "A"] },
+  { "name": "C4 Pack", "sequence": ["S", "D", "W", "W", "D", "W"] },
   { "name": "Reinforce", "sequence": ["W", "S", "D", "A", "W"] },
   { "name": "SoS Beacon", "sequence": ["W", "S", "D", "W"] },
   { "name": "Resupply", "sequence": ["S", "S", "W", "D"] },
@@ -88,5 +89,6 @@
   { "name": "Upload Data", "sequence": ["A", "D", "W", "W", "W"] },
   { "name": "Seismic Probe", "sequence": ["W", "W", "A", "D", "S", "S"] },
   { "name": "SEAF Artillery", "sequence": ["D", "W", "W", "S"] },
-  { "name": "Hive Breaker Drill", "sequence": ["A", "W", "S", "D", "S", "S"] }
+  { "name": "Hive Breaker Drill", "sequence": ["A", "W", "S", "D", "S", "S"] },
+  { "name": "Call In Super Destroyer", "sequence": ["W", "W", "S", "S", "A", "D", "A", "D"] }
 ]

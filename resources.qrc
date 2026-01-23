@@ -97,5 +97,7 @@
         <file>StratagemIcons/Upload Data.svg</file>
         <file>StratagemIcons/W.A.S.P Launcher.svg</file>
         <file>StratagemIcons/Warp Pack.svg</file>
+        <file>StratagemIcons/C4 Pack.svg</file>
+        <file>StratagemIcons/Call In Super Destroyer.svg</file>
     </qresource>
 </RCC>
