@@ -15,7 +15,7 @@ HellBuddy includes a minimalist GUI, where stratagem macros and their respective
 2. Download the .zip file
 3. Right click on the folder and click extract all
 4. Run 'HellBuddy.exe'
-5. Ensure that the 'Open Stratagem List' keybind is set to left ctrl, and the stratagem direction keybinds are set to the arrow keys (If you don't want to do this, the keycodes that HellBuddy uses can be changed in helldivers_keybinds.json)
+5. In HELLDIVERS 2, ensure that the 'Open Stratagem List' keybind is set to left ctrl, and the stratagem direction keybinds are set to the arrow keys (If you want to retain the WASD keybinds or have your own custom binds, the keys that HellBuddy uses to input stratagems can be changed in helldivers_keybinds.json)
 7. Press the hotkey underneath a stratagem to activate the respective stratagem in-game
 8. Change the stratagems by clicking on them
 9. Change the hotkeys by clicking on them and pressing the new keybind
