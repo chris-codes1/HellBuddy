@@ -90,5 +90,9 @@
   { "name": "Seismic Probe", "sequence": ["W", "W", "A", "D", "S", "S"] },
   { "name": "SEAF Artillery", "sequence": ["D", "W", "W", "S"] },
   { "name": "Hive Breaker Drill", "sequence": ["A", "W", "S", "D", "S", "S"] },
+  { "name": "EAT-411 Leveller", "sequence": ["S", "S", "A", "W", "S"] },
+  { "name": "GL-28 Belt-Fed Grenade Launcher", "sequence": ["S", "A", "W", "A", "W", "W"] },
+  { "name": "CQC-20 Breaching Hammer", "sequence": ["S", "A", "D", "A", "W"] },
+  { "name": "TD-220 Bastion MK XVI", "sequence": ["A", "S", "D", "S", "A", "S" "W", "S", "W"] },
   { "name": "Call In Super Destroyer", "sequence": ["W", "W", "S", "S", "A", "D", "A", "D"] }
 ]

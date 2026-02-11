@@ -1,4 +1,3 @@
-<?xml version="1.0" ?>
 <RCC>
     <qresource prefix="/icons">
         <file>HellBuddyIcon.ico</file>
@@ -99,5 +98,9 @@
         <file>StratagemIcons/Warp Pack.svg</file>
         <file>StratagemIcons/C4 Pack.svg</file>
         <file>StratagemIcons/Call In Super Destroyer.svg</file>
+        <file>StratagemIcons/TD-220 Bastion MK XVI.svg</file>
+        <file>StratagemIcons/EAT-411 Leveller.svg</file>
+        <file>StratagemIcons/CQC-20 Breaching Hammer.svg</file>
+        <file>StratagemIcons/GL-28 Belt-Fed Grenade Launcher.svg</file>
     </qresource>
 </RCC>
