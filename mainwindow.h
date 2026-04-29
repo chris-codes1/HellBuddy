@@ -43,6 +43,9 @@ private:
     void keyPressEvent(QKeyEvent *event) override;
     void minimizeWindow();
     void closeAllWindows();
+    void onLineModeToggled();
+    void applyStratagemLayout(bool lineMode);
+    void saveLineModeToUserData(bool enabled);
     WORD getVkCode(const QString &keyStr);
     Ui::MainWindow *ui;
 
@@ -69,6 +72,7 @@ private:
 
     //Macro disable feature
     bool macroDisabled = false;
+    bool lineModeEnabled = false;
 
     //Stratagem picker window
     StratagemPicker *stratagemPicker;

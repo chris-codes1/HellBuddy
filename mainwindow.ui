@@ -157,6 +157,46 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="lineModeBtn">
+        <property name="minimumSize">
+         <size>
+          <width>36</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>36</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+    background-color: rgb(15,15,15);
+    color: rgb(255,255,255);
+}
+
+QPushButton:hover {
+    background-color: #202020;
+}
+
+QPushButton:pressed {
+    background-color: #404040;
+}
+
+QPushButton:checked {
+    background-color: #404040;
+}</string>
+        </property>
+        <property name="text">
+         <string>≡</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="minimizeBtn">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">

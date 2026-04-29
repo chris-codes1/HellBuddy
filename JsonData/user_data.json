@@ -44,5 +44,6 @@
             "key_code": "0x4B",
             "letter": "K"
         }
-    ]
+    ],
+    "line_mode": false
 }
