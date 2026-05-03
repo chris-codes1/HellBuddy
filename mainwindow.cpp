@@ -1,5 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QFrame>
+#include <QGridLayout>
+#include <QProcess>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -53,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Connect minimize and close buttons
     connect(ui->minimizeBtn, &QPushButton::clicked, this, &MainWindow::minimizeWindow);
     connect(ui->closeBtn, &QPushButton::clicked, this, &MainWindow::closeAllWindows);
+    connect(ui->lineModeBtn, &QPushButton::clicked, this, &MainWindow::onLineModeToggled);
 
     // Read qt_key_to_win_vk.json and set to array
     QFile qtToWinVkFile(QCoreApplication::applicationDirPath() + "/qt_key_to_win_vk.json");
@@ -74,6 +78,8 @@ MainWindow::MainWindow(QWidget *parent)
     QJsonDocument userDataDoc = QJsonDocument::fromJson(userDataData);
     QJsonArray equippedStratagemsArray = userDataDoc.object().value("equipped_stratagems").toArray();
     QJsonArray keybinds = userDataDoc.object().value("keybinds").toArray();
+    lineModeEnabled = userDataDoc.object().value("line_mode").toBool(false);
+    ui->lineModeBtn->setChecked(lineModeEnabled);
 
     equippedStratagems.resize(10);
 
@@ -125,6 +131,7 @@ MainWindow::MainWindow(QWidget *parent)
             onKeybindClicked(i);
         });
     }
+    applyStratagemLayout(lineModeEnabled);
 
     //Build stratagems hash table
     QFile stratagemsFile(QCoreApplication::applicationDirPath() + "/stratagems.json");
@@ -273,6 +280,69 @@ void MainWindow::closeAllWindows() {
 
     //Close main window
     this->close();
+}
+
+void MainWindow::onLineModeToggled()
+{
+    lineModeEnabled = ui->lineModeBtn->isChecked();
+    saveLineModeToUserData(lineModeEnabled);
+
+    const QString program = QCoreApplication::applicationFilePath();
+    const QStringList arguments = QCoreApplication::arguments();
+    QProcess::startDetached(program, arguments);
+    QCoreApplication::quit();
+}
+
+void MainWindow::applyStratagemLayout(bool lineMode)
+{
+    QGridLayout *layout = ui->stratagemGridLayout;
+    if (!layout) {
+        return;
+    }
+
+    for (int i = 0; i <= 7; ++i) {
+        QFrame *frame = findChild<QFrame *>(QString("stratagem%1").arg(i));
+        if (!frame) {
+            continue;
+        }
+
+        layout->removeWidget(frame);
+        if (lineMode) {
+            layout->addWidget(frame, 0, i);
+        } else {
+            layout->addWidget(frame, i % 4, i / 4);
+        }
+    }
+
+    adjustSize();
+}
+
+void MainWindow::saveLineModeToUserData(bool enabled)
+{
+    QFile file(QCoreApplication::applicationDirPath() + "/user_data.json");
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "Failed to open user_data.json for reading.";
+        return;
+    }
+
+    const QByteArray data = file.readAll();
+    file.close();
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (!doc.isObject()) {
+        qDebug() << "user_data.json is not a JSON object.";
+        return;
+    }
+
+    QJsonObject root = doc.object();
+    root["line_mode"] = enabled;
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        qDebug() << "Failed to open user_data.json for writing.";
+        return;
+    }
+
+    file.write(QJsonDocument(root).toJson(QJsonDocument::Indented));
+    file.close();
 }
 
 void MainWindow::onStratagemClicked(int number) {

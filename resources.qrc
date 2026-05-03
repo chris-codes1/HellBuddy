@@ -103,5 +103,8 @@
         <file>StratagemIcons/Tectonic Drill.svg</file>
         <file>StratagemIcons/TX-41 Sterilizer.svg</file>
         <file>StratagemIcons/Upload Data.svg</file>
+        <file>StratagemIcons/EXO-51 Lumberer Exosuit.svg</file>
+        <file>StratagemIcons/MGX-42 Bullet Storm.svg</file>
+        <file>StratagemIcons/EXO-55 Breakthrough Exosuit.svg</file>
     </qresource>
 </RCC>
