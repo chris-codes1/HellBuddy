@@ -1,24 +1,26 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMouseEvent>
 #include <QApplication>
-#include <QFile>
-#include <QMainWindow>
-#include "stratagempicker.h"
-#include <QPoint>
 #include <QDebug>
-#include <QPushButton>
+#include <QFile>
 #include <QJsonArray>
-#include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonObject>
+#include <QMainWindow>
+#include <QMouseEvent>
+#include <QPoint>
+#include <QPushButton>
 #include <QString>
-#include <QVector>
 #include <QThread>
+#include <QVector>
+#include "stratagempicker.h"
 #include <windows.h>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+namespace Ui {
+class MainWindow;
+}
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow

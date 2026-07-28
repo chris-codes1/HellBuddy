@@ -5,10 +5,10 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , stratagemPicker(nullptr)
-    , listeningForInput(false)     // ← add
-    , selectedKeybindNumber(-1)    // ← add
-    , selectedStratagemNumber(0)   // ← add
-    , macroDisabled(false)          // ← add
+    , listeningForInput(false)   // ← add
+    , selectedKeybindNumber(-1)  // ← add
+    , selectedStratagemNumber(0) // ← add
+    , macroDisabled(false)       // ← add
 {
     ui->setupUi(this);
     setWindowTitle("HellBuddy");
@@ -26,7 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     // Setup Helldivers 2 keybinds
-    QFile helldiversKeybindsFile(QCoreApplication::applicationDirPath() + "/helldivers_keybinds.json");
+    QFile helldiversKeybindsFile(QCoreApplication::applicationDirPath()
+                                 + "/helldivers_keybinds.json");
     if (!helldiversKeybindsFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qWarning() << "Failed to open file:" << helldiversKeybindsFile.errorString();
     }
@@ -42,13 +43,11 @@ MainWindow::MainWindow(QWidget *parent)
     QJsonObject hdkbObj = helldiversKeybindsDoc.object();
 
     //Key map
-    keyMap = {
-        {"W", stringHexToInt(hdkbObj.value("up").toString())},
-        {"A", stringHexToInt(hdkbObj.value("left").toString())},
-        {"S", stringHexToInt(hdkbObj.value("down").toString())},
-        {"D", stringHexToInt(hdkbObj.value("right").toString())},
-        {"stratagem_menu", stringHexToInt(hdkbObj.value("stratagem_menu").toString())}
-    };
+    keyMap = {{"W", stringHexToInt(hdkbObj.value("up").toString())},
+              {"A", stringHexToInt(hdkbObj.value("left").toString())},
+              {"S", stringHexToInt(hdkbObj.value("down").toString())},
+              {"D", stringHexToInt(hdkbObj.value("right").toString())},
+              {"stratagem_menu", stringHexToInt(hdkbObj.value("stratagem_menu").toString())}};
 
     // Connect minimize and close buttons
     connect(ui->minimizeBtn, &QPushButton::clicked, this, &MainWindow::minimizeWindow);
@@ -84,8 +83,8 @@ MainWindow::MainWindow(QWidget *parent)
         QString keybindBtnName = QString("keybindBtn%1").arg(i);
 
         // Find the button by name
-        QPushButton *stratagemBtn = this->findChild<QPushButton*>(stratagemBtnName);
-        QPushButton *keybindBtn = this->findChild<QPushButton*>(keybindBtnName);
+        QPushButton *stratagemBtn = this->findChild<QPushButton *>(stratagemBtnName);
+        QPushButton *keybindBtn = this->findChild<QPushButton *>(keybindBtnName);
 
         //Set stratagem icon
         QString stratName = equippedStratagemsArray[i].toString();
@@ -104,26 +103,22 @@ MainWindow::MainWindow(QWidget *parent)
         int keybindKeyCode = stringHexToInt(keybindObject["key_code"].toString());
         if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
                 reinterpret_cast<HWND>(this->winId()), // window handle
-                i,                                              // hotkey ID (must be unique)
-                0,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
-                keybindKeyCode)) {                              // key code
+                i,                                     // hotkey ID (must be unique)
+                0,                                     // modifiers (e.g. MOD_CONTROL | MOD_ALT)
+                keybindKeyCode)) {                     // key code
             qDebug() << "Failed to register hotkey!";
         }
         if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
                 reinterpret_cast<HWND>(this->winId()), // window handle
-                i + 100,                                              // hotkey ID (must be unique)
-                MOD_SHIFT,                                              // shift modifier
-                keybindKeyCode)) {                              // key code
+                i + 100,                               // hotkey ID (must be unique)
+                MOD_SHIFT,                             // shift modifier
+                keybindKeyCode)) {                     // key code
             qDebug() << "Failed to register hotkey!";
         }
 
         //Connect clicked for stratagem and keybind buttons
-        connect(stratagemBtn, &QPushButton::clicked, this, [=]() {
-            onStratagemClicked(i);
-        });
-        connect(keybindBtn, &QPushButton::clicked, this, [=]() {
-            onKeybindClicked(i);
-        });
+        connect(stratagemBtn, &QPushButton::clicked, this, [=]() { onStratagemClicked(i); });
+        connect(keybindBtn, &QPushButton::clicked, this, [=]() { onKeybindClicked(i); });
     }
 
     //Build stratagems hash table
@@ -154,9 +149,9 @@ MainWindow::MainWindow(QWidget *parent)
     //Register macro disabled key code
     if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
             reinterpret_cast<HWND>(this->winId()), // window handle
-            999999,                                              // hotkey ID (must be unique)
-            0,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
-            0xBE)) {                              // key code ('A' key)
+            999999,                                // hotkey ID (must be unique)
+            0,                                     // modifiers (e.g. MOD_CONTROL | MOD_ALT)
+            0xBE)) {                               // key code ('A' key)
         qDebug() << "Failed to register macro disabled hotkey!";
     }
 
@@ -172,7 +167,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     for (int i = 0; i <= 7; ++i) {
-        UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), i); // Stratagem hotkeys
+        UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), i);       // Stratagem hotkeys
         UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), i + 100); // Stratagem hotkeys
     }
     UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), 999999); // Macro disabled hotkey
@@ -180,7 +175,8 @@ MainWindow::~MainWindow()
     //delete stratagemPicker;
 }
 
-void MainWindow::toggleDisableMacro() {
+void MainWindow::toggleDisableMacro()
+{
     // macroDisabled = !macroDisabled;
 
     // if (macroDisabled == true) {
@@ -203,7 +199,7 @@ void MainWindow::toggleDisableMacro() {
 bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
 {
     if (eventType == "windows_generic_MSG") {
-        MSG* msg = static_cast<MSG*>(message);
+        MSG *msg = static_cast<MSG *>(message);
         if (msg->message == WM_HOTKEY) {
             int hotkeyId = msg->wParam;
             if (hotkeyId == 999999) { // Macro disabled
@@ -219,7 +215,8 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr
     return QMainWindow::nativeEvent(eventType, message, result);
 }
 
-int MainWindow::stringHexToInt(const QString& hexStr) {
+int MainWindow::stringHexToInt(const QString &hexStr)
+{
     bool ok = false;
     int value = hexStr.toInt(&ok, 16);
 
@@ -256,15 +253,17 @@ int getWinVKFromQtKey(int qtKey, const QJsonObject &keyMap)
     return vkCode;
 }
 
-void MainWindow::minimizeWindow() {
+void MainWindow::minimizeWindow()
+{
     this->showMinimized();
 }
 
-void MainWindow::closeAllWindows() {
+void MainWindow::closeAllWindows()
+{
     //Find and close select stratagem window if it's exists
     const auto topWidgets = QApplication::topLevelWidgets();
     for (QWidget *widget : topWidgets) {
-        stratagemPicker = qobject_cast<StratagemPicker*>(widget);
+        stratagemPicker = qobject_cast<StratagemPicker *>(widget);
         if (stratagemPicker) {
             stratagemPicker->close();
             break;
@@ -275,25 +274,27 @@ void MainWindow::closeAllWindows() {
     this->close();
 }
 
-void MainWindow::onStratagemClicked(int number) {
+void MainWindow::onStratagemClicked(int number)
+{
     //Open window displaying stratagems
     if (!stratagemPicker) {
         stratagemPicker = new StratagemPicker(this); // create it once
     }
-    stratagemPicker->show();   // show window
-    stratagemPicker->raise();  // bring to front
+    stratagemPicker->show();  // show window
+    stratagemPicker->raise(); // bring to front
     stratagemPicker->activateWindow();
 
     selectedStratagemNumber = number;
 }
 
-void MainWindow::onKeybindClicked(int number) {
+void MainWindow::onKeybindClicked(int number)
+{
     if (listeningForInput == true) { //If another keybind button is already waiting for input
         return;
     }
 
     QString btnName = QString("keybindBtn%1").arg(number);
-    QPushButton *keybindBtn = this->findChild<QPushButton*>(btnName);
+    QPushButton *keybindBtn = this->findChild<QPushButton *>(btnName);
     oldKeybindBtnText = keybindBtn->text();
     keybindBtn->setText("<press key>");
 
@@ -303,7 +304,8 @@ void MainWindow::onKeybindClicked(int number) {
     selectedKeybindNumber = number;
 }
 
-QString getActiveWindowTitle() {
+QString getActiveWindowTitle()
+{
     HWND hwnd = GetForegroundWindow(); // get handle to active window
     if (!hwnd)
         return "No active window";
@@ -314,15 +316,17 @@ QString getActiveWindowTitle() {
     return QString::fromWCharArray(title);
 }
 
-void pressKey(WORD key) {
+void pressKey(WORD key)
+{
     INPUT input = {0};
     input.type = INPUT_KEYBOARD;
-    input.ki.wVk = key; // virtual key code, e.g., VK_A
+    input.ki.wVk = key;   // virtual key code, e.g., VK_A
     input.ki.dwFlags = 0; // 0 = key press
     SendInput(1, &input, sizeof(INPUT));
 }
 
-void releaseKey(WORD key) {
+void releaseKey(WORD key)
+{
     INPUT input = {0};
     input.type = INPUT_KEYBOARD;
     input.ki.wVk = key;
@@ -459,7 +463,8 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *event) {
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
     if (event->key() == Qt::Key_Escape) {
         listeningForInput = false;
         if (!oldKeybindBtnText.isEmpty()) {
@@ -472,10 +477,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 
     //Convert Qt key value to Windows VK code
     int qtKeycode;
-    QString keyText = event->text().toUpper();  // Typed character
+    QString keyText = event->text().toUpper(); // Typed character
     bool ok;
     if ((event->modifiers() & Qt::KeypadModifier) && keyText.toInt(&ok) && ok) { // Numpad number
-        qtKeycode = keyText.toInt() + 10000 ;
+        qtKeycode = keyText.toInt() + 10000;
         keyText = "NumPad" + keyText;
     } else { // Regular keypress
         qtKeycode = event->key();
@@ -494,21 +499,21 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 
     //Unbind last keybind
     UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), selectedKeybindNumber);
-    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), selectedKeybindNumber+100);
+    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), selectedKeybindNumber + 100);
 
     //Bind new keybind
     if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
             reinterpret_cast<HWND>(this->winId()), // window handle
-            selectedKeybindNumber,                                              // hotkey ID (must be unique)
-            0,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
-            vkKeybindKeyCode)) {                              // key code
+            selectedKeybindNumber,                 // hotkey ID (must be unique)
+            0,                                     // modifiers (e.g. MOD_CONTROL | MOD_ALT)
+            vkKeybindKeyCode)) {                   // key code
         qDebug() << "Failed to register hotkey!";
     }
     if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
             reinterpret_cast<HWND>(this->winId()), // window handle
-            selectedKeybindNumber+100,                                              // hotkey ID (must be unique)
-            4,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
-            vkKeybindKeyCode)) {                              // key code
+            selectedKeybindNumber + 100,           // hotkey ID (must be unique)
+            4,                                     // modifiers (e.g. MOD_CONTROL | MOD_ALT)
+            vkKeybindKeyCode)) {                   // key code
         qDebug() << "Failed to register hotkey!";
     }
 

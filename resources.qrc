@@ -1,4 +1,3 @@
-<?xml version="1.0" ?>
 <RCC>
     <qresource prefix="/icons">
         <file>HellBuddyIcon.ico</file>
@@ -103,5 +102,10 @@
         <file>StratagemIcons/Tectonic Drill.svg</file>
         <file>StratagemIcons/TX-41 Sterilizer.svg</file>
         <file>StratagemIcons/Upload Data.svg</file>
+        <file>StratagemIcons/EXO-51 Lumberer Exosuit.svg</file>
+        <file>StratagemIcons/EXO-55 Breakthrough Exosuit.svg</file>
+        <file>StratagemIcons/MGX-42 Bullet Storm.svg</file>
+        <file>StratagemIcons/GM-17 Gas Mortar Sentry.svg</file>
+        <file>StratagemIcons/FLAM-80 Cremator.svg</file>
     </qresource>
 </RCC>

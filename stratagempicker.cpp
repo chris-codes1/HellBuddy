@@ -4,9 +4,9 @@
 #include "mainwindow.h"
 
 StratagemPicker::StratagemPicker(MainWindow *mainWindow, QWidget *parent)
-    : QWidget(parent),
-    ui(new Ui::StratagemPicker),
-    m_mainWindow(mainWindow)
+    : QWidget(parent)
+    , ui(new Ui::StratagemPicker)
+    , m_mainWindow(mainWindow)
 {
     ui->setupUi(this);
     setWindowTitle("Select a stratagem");
@@ -47,7 +47,7 @@ StratagemPicker::StratagemPicker(MainWindow *mainWindow, QWidget *parent)
         stratagemBtn->setIconSize(QSize(50, 50));
         stratagemBtn->setToolTip(stratagemName);
 
-        QGridLayout *layout = qobject_cast<QGridLayout*>(ui->stratagems->layout());
+        QGridLayout *layout = qobject_cast<QGridLayout *>(ui->stratagems->layout());
         layout->addWidget(stratagemBtn, row, column);
 
         column += 1;
@@ -68,7 +68,8 @@ StratagemPicker::~StratagemPicker()
     delete ui;
 }
 
-void StratagemPicker::minimizeWindow() {
+void StratagemPicker::minimizeWindow()
+{
     this->showMinimized();
 }
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>377</width>
-    <height>278</height>
+    <width>388</width>
+    <height>277</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -170,8 +170,8 @@ QPushButton:pressed {
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>369</width>
-        <height>245</height>
+        <width>380</width>
+        <height>244</height>
        </rect>
       </property>
       <property name="styleSheet">

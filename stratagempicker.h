@@ -1,13 +1,13 @@
 #ifndef STRATAGEMPICKER_H
 #define STRATAGEMPICKER_H
 
-#include <QWidget>
 #include <QFile>
-#include <QMouseEvent>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
+#include <QMouseEvent>
 #include <QToolButton>
+#include <QWidget>
 
 class MainWindow; // forward declaration (avoids circular include)
 

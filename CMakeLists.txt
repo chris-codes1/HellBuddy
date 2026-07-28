@@ -76,3 +76,13 @@ install(TARGETS HellBuddy
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(HellBuddy)
 endif()
+
+# Only trigger deployment during Release builds on Windows
+if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
+    get_target_property(_qt_executable Qt6::windeployqt LOCATION)
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${_qt_executable} "$<TARGET_FILE:${PROJECT_NAME}>"
+        COMMENT "Deploying Qt dependencies next to the executable..."
+    )
+endif()
