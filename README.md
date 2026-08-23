@@ -41,3 +41,7 @@ How to download and use HellBuddy: https://www.youtube.com/watch?v=nnpVVKC2aq4
 # Links
 
 Discord server: https://discord.gg/XBjNg6eXSp
+
+# Credits
+
+Credits to @nvigneux for the icon .svgs
