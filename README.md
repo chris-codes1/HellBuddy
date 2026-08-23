@@ -44,4 +44,4 @@ Discord server: https://discord.gg/XBjNg6eXSp
 
 # Credits
 
-Credits to [@nvigneux] (https://www.github.com/nvigneux) for the icon .svgs 
+Credits to @nvigneux for the icon .svgs
