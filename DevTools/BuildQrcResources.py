@@ -1,3 +1,5 @@
+# Builds images from StratagemIcons folder into qrc file, which qt uses to know what icons to build into the final .exe
+
 import os
 import xml.etree.ElementTree as ET
 from xml.dom import minidom

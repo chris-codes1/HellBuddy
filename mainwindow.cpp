@@ -13,6 +13,18 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     setWindowTitle("HellBuddy");
 
+    // Read version
+    QFile versionFile(QCoreApplication::applicationDirPath() + "/version.txt");
+
+    if (!versionFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open version.txt:" << versionFile.errorString();
+    } else {
+        QString version = QString::fromUtf8(versionFile.readAll()).trimmed();
+        versionFile.close();
+
+        ui->version->setText("v" + version);
+    }
+
     // Setup Helldivers 2 keybinds
     QFile helldiversKeybindsFile(QCoreApplication::applicationDirPath() + "/helldivers_keybinds.json");
     if (!helldiversKeybindsFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
