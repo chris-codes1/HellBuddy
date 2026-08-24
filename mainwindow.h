@@ -17,6 +17,8 @@
 #include <QThread>
 #include <windows.h>
 
+class QComboBox;
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -75,6 +77,34 @@ private:
 
     //Key code hash map
     QHash<QString, WORD> keyMap;
+
+    // -----------------------------------------------------------------
+    // Presets
+    // -----------------------------------------------------------------
+    QJsonObject userData;        // the whole user_data.json document
+    QJsonArray  presets;         // userData["presets"]
+    QJsonArray  currentKeybinds; // keybinds of the active preset (live copy)
+    int         activePresetIndex = 0;
+    QComboBox  *presetBox = nullptr;
+
+    QString userDataPath() const;
+    void loadUserData();               // read + migrate old save format
+    void saveUserData();               // write userData back to disk
+    void syncActivePresetFromState();  // copy live state into presets[active]
+    QJsonObject makeDefaultPreset(const QString &name) const;
+
+    void setupPresetBar();             // builds the preset row above the grid
+    void refreshPresetBox();           // repopulates the combo box
+    void applyPreset(int index);       // loads a preset into UI + hotkeys
+    void cyclePreset(int delta);       // next / previous preset
+
+    void onPresetSelected(int index);
+    void onAddPreset();
+    void onRenamePreset();
+    void onDeletePreset();
+
+    void registerSlotHotkeys(int slot, int vkCode);
+    void unregisterSlotHotkeys(int slot);
 };
 
 #endif // MAINWINDOW_H

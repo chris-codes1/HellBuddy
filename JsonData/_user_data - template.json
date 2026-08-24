@@ -1,24 +1,59 @@
 {
-  "equipped_stratagems": [
-    "Resupply",
-    "LIFT-182 Warp Pack",
-    "S-11 Speargun",
-    "Eagle 500kg Bomb",
-    "Orbital Napalm Barrage",
-    "Reinforce",
-    "Eagle Rearm",
-    "Hellbomb",
-    "Orbital Napalm Barrage",
-    "Eagle Airstrike"
-],
-  "keybinds": [
-    {"letter": "T", "key_code": "0x54"},
-    {"letter": "Y", "key_code": "0x59"},
-    {"letter": "H", "key_code": "0x48"},
-    {"letter": "N", "key_code": "0x4E"},
-    {"letter": "U", "key_code": "0x55"},
-    {"letter": "J", "key_code": "0x4A"},
-    {"letter": "M", "key_code": "0x4D"},
-    {"letter": "K", "key_code": "0x4B"}
-  ]
+    "active_preset": 0,
+    "preset_hotkeys": {
+        "modifiers": "alt",
+        "prev": "0xDB",
+        "next": "0xDD"
+    },
+    "presets": [
+        {
+            "name": "Default",
+            "equipped_stratagems": [
+                "Resupply",
+                "Warp Pack",
+                "Speargun",
+                "Eagle 500KG Bomb",
+                "Orbital Napalm Barrage",
+                "Reinforce",
+                "Eagle Rearm",
+                "Hellbomb",
+                "Orbital Napalm Barrage",
+                "Eagle Airstrike"
+            ],
+            "keybinds": [
+                {
+                    "letter": "T",
+                    "key_code": "0x54"
+                },
+                {
+                    "letter": "Y",
+                    "key_code": "0x59"
+                },
+                {
+                    "letter": "H",
+                    "key_code": "0x48"
+                },
+                {
+                    "letter": "N",
+                    "key_code": "0x4E"
+                },
+                {
+                    "letter": "U",
+                    "key_code": "0x55"
+                },
+                {
+                    "letter": "J",
+                    "key_code": "0x4a"
+                },
+                {
+                    "letter": "M",
+                    "key_code": "0x4D"
+                },
+                {
+                    "letter": "K",
+                    "key_code": "0x4B"
+                }
+            ]
+        }
+    ]
 }

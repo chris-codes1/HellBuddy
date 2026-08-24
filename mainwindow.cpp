@@ -1,14 +1,57 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QInputDialog>
+#include <QKeyEvent>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QSignalBlocker>
+
+namespace {
+constexpr int kSlotCount         = 8;      // macro slots shown in the UI
+constexpr int kStratagemSlots    = 10;     // stratagem entries stored per preset
+constexpr int kHotkeyMacroToggle = 999999;
+constexpr int kHotkeyPrevPreset  = 900;
+constexpr int kHotkeyNextPreset  = 901;
+
+const char *kSmallBtnStyle = R"(
+QPushButton {
+    background-color: rgb(15, 15, 15);
+    color: rgb(255, 255, 255);
+    border: none;
+}
+QPushButton:hover  { background-color: #202020; }
+QPushButton:pressed { background-color: #404040; }
+)";
+
+const char *kComboStyle = R"(
+QComboBox {
+    background-color: rgb(15, 15, 15);
+    color: rgb(255, 255, 255);
+    border: none;
+    padding: 2px 4px;
+}
+QComboBox:hover { background-color: #202020; }
+QComboBox::drop-down { border: none; width: 16px; }
+QComboBox QAbstractItemView {
+    background-color: rgb(15, 15, 15);
+    color: rgb(255, 255, 255);
+    selection-background-color: #404040;
+    border: 1px solid #404040;
+}
+)";
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , stratagemPicker(nullptr)
-    , listeningForInput(false)     // ← add
-    , selectedKeybindNumber(-1)    // ← add
-    , selectedStratagemNumber(0)   // ← add
-    , macroDisabled(false)          // ← add
+    , listeningForInput(false)
+    , selectedKeybindNumber(-1)
+    , selectedStratagemNumber(0)
+    , macroDisabled(false)
 {
     ui->setupUi(this);
     setWindowTitle("HellBuddy");
@@ -64,66 +107,30 @@ MainWindow::MainWindow(QWidget *parent)
     QJsonDocument qtToWinVkDoc = QJsonDocument::fromJson(qtToWinVkData);
     qtToWinVkKeyMap = qtToWinVkDoc.object();
 
-    // Read user_data.json save file and set values
-    QFile userDataFile(QCoreApplication::applicationDirPath() + "/user_data.json");
-    if (!userDataFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "Failed to open file:" << userDataFile.errorString();
-    }
-    QByteArray userDataData = userDataFile.readAll();
-    userDataFile.close();
-    QJsonDocument userDataDoc = QJsonDocument::fromJson(userDataData);
-    QJsonArray equippedStratagemsArray = userDataDoc.object().value("equipped_stratagems").toArray();
-    QJsonArray keybinds = userDataDoc.object().value("keybinds").toArray();
+    // Read user_data.json (migrates pre-preset save files automatically)
+    loadUserData();
 
-    equippedStratagems.resize(10);
+    equippedStratagems.resize(kStratagemSlots);
 
-    // Connect stratagem buttons
-    for (int i = 0; i <= 7; ++i) {
-        // Build the object name (matches your .ui naming)
+    // Connect stratagem / keybind buttons. Icons, labels and hotkeys are set
+    // by applyPreset() below so that switching presets reuses the same path.
+    for (int i = 0; i < kSlotCount; ++i) {
         QString stratagemBtnName = QString("stratagemBtn%1").arg(i);
         QString keybindBtnName = QString("keybindBtn%1").arg(i);
 
-        // Find the button by name
         QPushButton *stratagemBtn = this->findChild<QPushButton*>(stratagemBtnName);
         QPushButton *keybindBtn = this->findChild<QPushButton*>(keybindBtnName);
 
-        //Set stratagem icon
-        QString stratName = equippedStratagemsArray[i].toString();
-        QString iconPath = QString(":/thumbs/StratagemIcons/%1.svg").arg(stratName);
-        stratagemBtn->setIcon(QIcon(iconPath));
-
-        //Set into equipped stratagems array
-        equippedStratagems[i] = stratName;
-
-        //Set keybind text
-        QJsonObject keybindObject = keybinds[i].toObject();
-        QString keybindLetter = keybindObject["letter"].toString();
-        keybindBtn->setText(keybindLetter);
-
-        //Setup keybind
-        int keybindKeyCode = stringHexToInt(keybindObject["key_code"].toString());
-        if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
-                reinterpret_cast<HWND>(this->winId()), // window handle
-                i,                                              // hotkey ID (must be unique)
-                0,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
-                keybindKeyCode)) {                              // key code
-            qDebug() << "Failed to register hotkey!";
+        if (stratagemBtn) {
+            connect(stratagemBtn, &QPushButton::clicked, this, [=]() {
+                onStratagemClicked(i);
+            });
         }
-        if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
-                reinterpret_cast<HWND>(this->winId()), // window handle
-                i + 100,                                              // hotkey ID (must be unique)
-                MOD_SHIFT,                                              // shift modifier
-                keybindKeyCode)) {                              // key code
-            qDebug() << "Failed to register hotkey!";
+        if (keybindBtn) {
+            connect(keybindBtn, &QPushButton::clicked, this, [=]() {
+                onKeybindClicked(i);
+            });
         }
-
-        //Connect clicked for stratagem and keybind buttons
-        connect(stratagemBtn, &QPushButton::clicked, this, [=]() {
-            onStratagemClicked(i);
-        });
-        connect(keybindBtn, &QPushButton::clicked, this, [=]() {
-            onKeybindClicked(i);
-        });
     }
 
     //Build stratagems hash table
@@ -143,21 +150,44 @@ MainWindow::MainWindow(QWidget *parent)
         QJsonArray seqArray = obj["sequence"].toArray();
 
         QVector<QString> sequence;
-        for (int i = 0; i < seqArray.size(); ++i) {
-            const QJsonValue &seqVal = seqArray.at(i);
+        for (int j = 0; j < seqArray.size(); ++j) {
+            const QJsonValue &seqVal = seqArray.at(j);
             sequence.append(seqVal.toString());
         }
 
         stratagems.insert(name, sequence);
     }
 
+    // Build the preset bar and load the last used preset
+    setupPresetBar();
+    applyPreset(activePresetIndex);
+
     //Register macro disabled key code
     if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
             reinterpret_cast<HWND>(this->winId()), // window handle
-            999999,                                              // hotkey ID (must be unique)
-            0,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
-            0xBE)) {                              // key code ('A' key)
+            kHotkeyMacroToggle,                    // hotkey ID (must be unique)
+            0,                                     // modifiers (e.g. MOD_CONTROL | MOD_ALT)
+            0xBE)) {                               // key code ('.' key)
         qDebug() << "Failed to register macro disabled hotkey!";
+    }
+
+    //Register preset cycling hotkeys (defaults: Alt + [ and Alt + ])
+    QJsonObject presetHotkeys = userData.value("preset_hotkeys").toObject();
+    int prevVk = stringHexToInt(presetHotkeys.value("prev").toString("0xDB"));
+    int nextVk = stringHexToInt(presetHotkeys.value("next").toString("0xDD"));
+    UINT presetMod = MOD_ALT;
+    QString modStr = presetHotkeys.value("modifiers").toString("alt").toLower();
+    if (modStr == "ctrl" || modStr == "control")      presetMod = MOD_CONTROL;
+    else if (modStr == "shift")                       presetMod = MOD_SHIFT;
+    else if (modStr == "none")                        presetMod = 0;
+
+    if (prevVk > 0 && !RegisterHotKey(reinterpret_cast<HWND>(this->winId()),
+                                      kHotkeyPrevPreset, presetMod, prevVk)) {
+        qDebug() << "Failed to register previous preset hotkey!";
+    }
+    if (nextVk > 0 && !RegisterHotKey(reinterpret_cast<HWND>(this->winId()),
+                                      kHotkeyNextPreset, presetMod, nextVk)) {
+        qDebug() << "Failed to register next preset hotkey!";
     }
 
     //this->adjustSize();
@@ -171,14 +201,362 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    for (int i = 0; i <= 7; ++i) {
-        UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), i); // Stratagem hotkeys
-        UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), i + 100); // Stratagem hotkeys
+    for (int i = 0; i < kSlotCount; ++i) {
+        unregisterSlotHotkeys(i);
     }
-    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), 999999); // Macro disabled hotkey
+    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), kHotkeyMacroToggle);
+    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), kHotkeyPrevPreset);
+    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), kHotkeyNextPreset);
     delete ui;
     //delete stratagemPicker;
 }
+
+// =====================================================================
+// Presets
+// =====================================================================
+
+QString MainWindow::userDataPath() const
+{
+    return QCoreApplication::applicationDirPath() + "/user_data.json";
+}
+
+QJsonObject MainWindow::makeDefaultPreset(const QString &name) const
+{
+    static const char *defaultLetters[kSlotCount] = {"T","Y","H","N","U","J","M","K"};
+    static const char *defaultCodes[kSlotCount]   = {"0x54","0x59","0x48","0x4E","0x55","0x4A","0x4D","0x4B"};
+
+    QJsonArray strat;
+    for (int i = 0; i < kStratagemSlots; ++i) {
+        strat.append("Resupply");
+    }
+
+    QJsonArray binds;
+    for (int i = 0; i < kSlotCount; ++i) {
+        QJsonObject kb;
+        kb["letter"]   = defaultLetters[i];
+        kb["key_code"] = defaultCodes[i];
+        binds.append(kb);
+    }
+
+    QJsonObject preset;
+    preset["name"]                = name;
+    preset["equipped_stratagems"] = strat;
+    preset["keybinds"]            = binds;
+    return preset;
+}
+
+void MainWindow::loadUserData()
+{
+    QJsonObject root;
+
+    QFile file(userDataPath());
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open user_data.json:" << file.errorString();
+    } else {
+        root = QJsonDocument::fromJson(file.readAll()).object();
+        file.close();
+    }
+
+    // Migrate the old single-loadout format into a one-entry preset list.
+    if (!root.contains("presets")) {
+        QJsonObject preset = makeDefaultPreset("Default");
+        if (root.contains("equipped_stratagems")) {
+            preset["equipped_stratagems"] = root.value("equipped_stratagems").toArray();
+        }
+        if (root.contains("keybinds")) {
+            preset["keybinds"] = root.value("keybinds").toArray();
+        }
+
+        QJsonArray migrated;
+        migrated.append(preset);
+
+        QJsonObject newRoot;
+        newRoot["presets"]       = migrated;
+        newRoot["active_preset"] = 0;
+        if (root.contains("preset_hotkeys")) {
+            newRoot["preset_hotkeys"] = root.value("preset_hotkeys");
+        }
+        root = newRoot;
+    }
+
+    userData = root;
+    presets  = userData.value("presets").toArray();
+
+    if (presets.isEmpty()) {
+        presets.append(makeDefaultPreset("Default"));
+    }
+
+    activePresetIndex = userData.value("active_preset").toInt(0);
+    if (activePresetIndex < 0 || activePresetIndex >= presets.size()) {
+        activePresetIndex = 0;
+    }
+}
+
+void MainWindow::saveUserData()
+{
+    userData["presets"]       = presets;
+    userData["active_preset"] = activePresetIndex;
+
+    QFile file(userDataPath());
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+        qWarning() << "Failed to open user_data.json for writing:" << file.errorString();
+        return;
+    }
+    file.write(QJsonDocument(userData).toJson(QJsonDocument::Indented));
+    file.close();
+}
+
+void MainWindow::syncActivePresetFromState()
+{
+    if (activePresetIndex < 0 || activePresetIndex >= presets.size()) {
+        return;
+    }
+
+    QJsonArray strat;
+    for (int i = 0; i < equippedStratagems.size(); ++i) {
+        strat.append(equippedStratagems[i]);
+    }
+
+    QJsonObject preset = presets.at(activePresetIndex).toObject();
+    preset["equipped_stratagems"] = strat;
+    preset["keybinds"]            = currentKeybinds;
+    presets[activePresetIndex]    = preset;
+}
+
+void MainWindow::setupPresetBar()
+{
+    QHBoxLayout *presetLayout = new QHBoxLayout();
+    presetLayout->setSpacing(1);
+    presetLayout->setContentsMargins(0, 0, 0, 0);
+
+    presetBox = new QComboBox(this);
+    presetBox->setStyleSheet(kComboStyle);
+    presetBox->setToolTip("Active preset (Alt + [ / Alt + ] to cycle)");
+    presetBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    presetBox->setMinimumHeight(24);
+    refreshPresetBox();
+
+    QPushButton *addBtn = new QPushButton("+", this);
+    addBtn->setToolTip("New preset");
+    QPushButton *renameBtn = new QPushButton("R", this);
+    renameBtn->setToolTip("Rename preset");
+    QPushButton *deleteBtn = new QPushButton("-", this);
+    deleteBtn->setToolTip("Delete preset");
+
+    const QList<QPushButton*> smallButtons = {addBtn, renameBtn, deleteBtn};
+    for (QPushButton *btn : smallButtons) {
+        btn->setStyleSheet(kSmallBtnStyle);
+        btn->setFixedSize(24, 24);
+        btn->setFocusPolicy(Qt::NoFocus);
+    }
+
+    presetLayout->addWidget(presetBox);
+    presetLayout->addWidget(addBtn);
+    presetLayout->addWidget(renameBtn);
+    presetLayout->addWidget(deleteBtn);
+
+    // Insert between the title bar (index 0) and the stratagem grid (index 1)
+    ui->verticalLayout->insertLayout(1, presetLayout);
+
+    // The .ui file sets stretch factors per index; re-apply them after the insert
+    ui->verticalLayout->setStretch(0, 0);           // title bar
+    ui->verticalLayout->setStretch(1, 0);           // preset bar
+    ui->verticalLayout->setStretch(2, 999999999);   // stratagem grid
+    ui->verticalLayout->setStretch(3, 0);           // macro disabled button
+
+    // activated() only fires on user interaction, so programmatic index
+    // changes (e.g. hotkey cycling) do not re-trigger it.
+    connect(presetBox, QOverload<int>::of(&QComboBox::activated),
+            this, &MainWindow::onPresetSelected);
+    connect(addBtn,    &QPushButton::clicked, this, &MainWindow::onAddPreset);
+    connect(renameBtn, &QPushButton::clicked, this, &MainWindow::onRenamePreset);
+    connect(deleteBtn, &QPushButton::clicked, this, &MainWindow::onDeletePreset);
+}
+
+void MainWindow::refreshPresetBox()
+{
+    if (!presetBox) {
+        return;
+    }
+
+    QSignalBlocker blocker(presetBox);
+    presetBox->clear();
+    for (int i = 0; i < presets.size(); ++i) {
+        QString name = presets.at(i).toObject().value("name").toString();
+        if (name.isEmpty()) {
+            name = QString("Preset %1").arg(i + 1);
+        }
+        presetBox->addItem(name);
+    }
+    presetBox->setCurrentIndex(activePresetIndex);
+}
+
+void MainWindow::registerSlotHotkeys(int slot, int vkCode)
+{
+    if (vkCode <= 0) {
+        return;
+    }
+
+    if (!RegisterHotKey(reinterpret_cast<HWND>(this->winId()), slot, 0, vkCode)) {
+        qDebug() << "Failed to register hotkey for slot" << slot;
+    }
+    if (!RegisterHotKey(reinterpret_cast<HWND>(this->winId()), slot + 100, MOD_SHIFT, vkCode)) {
+        qDebug() << "Failed to register shift hotkey for slot" << slot;
+    }
+}
+
+void MainWindow::unregisterSlotHotkeys(int slot)
+{
+    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), slot);
+    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), slot + 100);
+}
+
+void MainWindow::applyPreset(int index)
+{
+    if (index < 0 || index >= presets.size()) {
+        return;
+    }
+
+    // Abort a pending "press a key" rebind so it can't land in the new preset
+    if (listeningForInput && selectedKeybindBtn && !oldKeybindBtnText.isEmpty()) {
+        selectedKeybindBtn->setText(oldKeybindBtnText);
+    }
+    listeningForInput = false;
+
+    activePresetIndex = index;
+
+    QJsonObject preset  = presets.at(index).toObject();
+    QJsonArray stratArr = preset.value("equipped_stratagems").toArray();
+    currentKeybinds     = preset.value("keybinds").toArray();
+
+    equippedStratagems.resize(kStratagemSlots);
+    for (int i = 0; i < kStratagemSlots; ++i) {
+        equippedStratagems[i] = stratArr.at(i).toString();
+    }
+
+    for (int i = 0; i < kSlotCount; ++i) {
+        QPushButton *stratagemBtn =
+            this->findChild<QPushButton*>(QString("stratagemBtn%1").arg(i));
+        if (stratagemBtn) {
+            QString iconPath = QString(":/thumbs/StratagemIcons/%1.svg").arg(equippedStratagems[i]);
+            stratagemBtn->setIcon(QIcon(iconPath));
+            stratagemBtn->setToolTip(equippedStratagems[i]);
+        }
+
+        QJsonObject keybindObject = currentKeybinds.at(i).toObject();
+
+        QPushButton *keybindBtn =
+            this->findChild<QPushButton*>(QString("keybindBtn%1").arg(i));
+        if (keybindBtn) {
+            keybindBtn->setText(keybindObject.value("letter").toString());
+        }
+
+        // Rebind the Windows hotkeys to this preset's keys
+        unregisterSlotHotkeys(i);
+        registerSlotHotkeys(i, stringHexToInt(keybindObject.value("key_code").toString()));
+    }
+
+    if (presetBox && presetBox->currentIndex() != index) {
+        QSignalBlocker blocker(presetBox);
+        presetBox->setCurrentIndex(index);
+    }
+}
+
+void MainWindow::cyclePreset(int delta)
+{
+    if (presets.size() < 2) {
+        return;
+    }
+
+    int next = (activePresetIndex + delta) % presets.size();
+    if (next < 0) {
+        next += presets.size();
+    }
+
+    applyPreset(next);
+    saveUserData();
+}
+
+void MainWindow::onPresetSelected(int index)
+{
+    if (index == activePresetIndex) {
+        return;
+    }
+    applyPreset(index);
+    saveUserData();
+}
+
+void MainWindow::onAddPreset()
+{
+    bool ok = false;
+    QString name = QInputDialog::getText(this, "New preset", "Preset name:",
+                                         QLineEdit::Normal,
+                                         QString("Preset %1").arg(presets.size() + 1), &ok);
+    if (!ok || name.trimmed().isEmpty()) {
+        return;
+    }
+
+    // Start the new preset as a copy of the current loadout
+    syncActivePresetFromState();
+    QJsonObject preset = presets.at(activePresetIndex).toObject();
+    preset["name"] = name.trimmed();
+    presets.append(preset);
+
+    activePresetIndex = presets.size() - 1;
+    refreshPresetBox();
+    applyPreset(activePresetIndex);
+    saveUserData();
+}
+
+void MainWindow::onRenamePreset()
+{
+    if (activePresetIndex < 0 || activePresetIndex >= presets.size()) {
+        return;
+    }
+
+    QJsonObject preset = presets.at(activePresetIndex).toObject();
+
+    bool ok = false;
+    QString name = QInputDialog::getText(this, "Rename preset", "Preset name:",
+                                         QLineEdit::Normal,
+                                         preset.value("name").toString(), &ok);
+    if (!ok || name.trimmed().isEmpty()) {
+        return;
+    }
+
+    preset["name"] = name.trimmed();
+    presets[activePresetIndex] = preset;
+
+    refreshPresetBox();
+    saveUserData();
+}
+
+void MainWindow::onDeletePreset()
+{
+    if (presets.size() <= 1) {
+        QMessageBox::information(this, "Delete preset",
+                                 "You need at least one preset.");
+        return;
+    }
+
+    QString name = presets.at(activePresetIndex).toObject().value("name").toString();
+    if (QMessageBox::question(this, "Delete preset",
+                              QString("Delete preset \"%1\"?").arg(name))
+        != QMessageBox::Yes) {
+        return;
+    }
+
+    presets.removeAt(activePresetIndex);
+    if (activePresetIndex >= presets.size()) {
+        activePresetIndex = presets.size() - 1;
+    }
+
+    refreshPresetBox();
+    applyPreset(activePresetIndex);
+    saveUserData();
+}
+
+// =====================================================================
 
 void MainWindow::toggleDisableMacro() {
     // macroDisabled = !macroDisabled;
@@ -206,8 +584,14 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr
         MSG* msg = static_cast<MSG*>(message);
         if (msg->message == WM_HOTKEY) {
             int hotkeyId = msg->wParam;
-            if (hotkeyId == 999999) { // Macro disabled
+            if (hotkeyId == kHotkeyMacroToggle) { // Macro disabled
                 toggleDisableMacro();
+                return true;
+            } else if (hotkeyId == kHotkeyPrevPreset) { // Previous preset
+                cyclePreset(-1);
+                return true;
+            } else if (hotkeyId == kHotkeyNextPreset) { // Next preset
+                cyclePreset(1);
                 return true;
             } else if (hotkeyId >= 0 && hotkeyId <= 107) { // Stratagem
                 int keyCode = hotkeyId;
@@ -338,7 +722,7 @@ void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
     QString activeWindowTitle = getActiveWindowTitle();
     // if (macroDisabled == true) { // Check if macro is enabled
     //     return;
-    // } else if (activeWindowTitle != "HELLDIVERS™ 2") { // Check if window selected is 'HELLDIVERS 2'
+    // } else if (activeWindowTitle != "HELLDIVERS 2") { // Check if window selected is 'HELLDIVERS 2'
     //     return;
     // }
 
@@ -347,14 +731,6 @@ void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
     if (hotkeyNumber >= 100) { // If the hotkey has a modifier
         hotkeyNumber -= 100;
     }
-
-    //Change button color to green
-    // QString stratagemBtnName = QString("stratagemBtn%1").arg(hotkeyNumber);
-    // QPushButton *stratagemBtn = this->findChild<QPushButton*>(stratagemBtnName);
-    // stratagemBtn->setStyleSheet(
-    //     "QPushButton:hover { background-color: rgb(32, 32, 32); }"
-    //     "QPushButton:pressed { background-color: rgb(64, 64, 64); }"
-    // );
 
     // Activate stratagem number 'hotkeyNumber'
     QString stratagemToActivate = equippedStratagems[hotkeyNumber];
@@ -370,13 +746,6 @@ void MainWindow::onHotkeyPressed(int hotkeyNumber, int keyCode)
     }
     QThread::msleep(50);
     releaseKey(keyMap.value("stratagem_menu"));
-
-    // Change color button back
-    // stratagemBtn->setStyleSheet(
-    //     "QPushButton { background-color: rgb(15, 15, 15); }"
-    //     "QPushButton:hover { background-color: rgb(32, 32, 32); }"
-    //     "QPushButton:pressed { background-color: rgb(64, 64, 64); }"
-    // );
 }
 
 void MainWindow::setStratagem(const QString &stratagemName)
@@ -385,51 +754,22 @@ void MainWindow::setStratagem(const QString &stratagemName)
     QString iconPath = QString(":/thumbs/StratagemIcons/%1.svg").arg(stratagemName);
     QString buttonName = QString("stratagemBtn%1").arg(selectedStratagemNumber);
     QPushButton *button = findChild<QPushButton *>(buttonName);
-    button->setIcon(QIcon(iconPath));
-
-    //Set stratagem name to 'keybinds' QVector - [i] = stratagemName
-    equippedStratagems[selectedStratagemNumber] = stratagemName;
-
-    // Save selected stratagem to user_data.json -> equipped_stratagems -  [i] = stratagemName
-    QFile file("user_data.json");
-    if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "Failed to open file for reading.";
-        return;
+    if (button) {
+        button->setIcon(QIcon(iconPath));
+        button->setToolTip(stratagemName);
     }
 
-    // Parse existing JSON
-    QByteArray data = file.readAll();
-    file.close();
-    QJsonDocument doc = QJsonDocument::fromJson(data);
-    if (!doc.isObject()) {
-        qDebug() << "JSON is not an object.";
-        return;
-    }
-
-    QJsonObject root = doc.object();
-
-    // Get the "equipped_stratagems" array
-    QJsonArray equippedStratagemsArray = root.value("equipped_stratagems").toArray();
-    if (selectedStratagemNumber < 0 || selectedStratagemNumber >= equippedStratagemsArray.size()) {
+    if (selectedStratagemNumber < 0 || selectedStratagemNumber >= equippedStratagems.size()) {
         qDebug() << "Invalid stratagem index:" << selectedStratagemNumber;
         return;
     }
 
-    // Replace element
-    equippedStratagemsArray[selectedStratagemNumber] = stratagemName;
+    //Set stratagem name into the live loadout
+    equippedStratagems[selectedStratagemNumber] = stratagemName;
 
-    // Update root object
-    root["equipped_stratagems"] = equippedStratagemsArray;
-
-    // // Write back to file
-    file.setFileName("user_data.json");
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        qDebug() << "Failed to open file for writing.";
-        return;
-    }
-    QJsonDocument saveDoc(root);
-    file.write(saveDoc.toJson(QJsonDocument::Indented));
-    file.close();
+    //Store it in the active preset and save
+    syncActivePresetFromState();
+    saveUserData();
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
@@ -462,7 +802,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 void MainWindow::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_Escape) {
         listeningForInput = false;
-        if (!oldKeybindBtnText.isEmpty()) {
+        if (!oldKeybindBtnText.isEmpty() && selectedKeybindBtn) {
             selectedKeybindBtn->setText(oldKeybindBtnText);
         }
         return;
@@ -492,47 +832,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     selectedKeybindBtn->setText(keyText);
     oldKeybindBtnText = selectedKeybindBtn->text();
 
-    //Unbind last keybind
-    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), selectedKeybindNumber);
-    UnregisterHotKey(reinterpret_cast<HWND>(this->winId()), selectedKeybindNumber+100);
+    //Rebind the hotkey
+    unregisterSlotHotkeys(selectedKeybindNumber);
+    registerSlotHotkeys(selectedKeybindNumber, vkKeybindKeyCode);
 
-    //Bind new keybind
-    if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
-            reinterpret_cast<HWND>(this->winId()), // window handle
-            selectedKeybindNumber,                                              // hotkey ID (must be unique)
-            0,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
-            vkKeybindKeyCode)) {                              // key code
-        qDebug() << "Failed to register hotkey!";
-    }
-    if (!RegisterHotKey( // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey
-            reinterpret_cast<HWND>(this->winId()), // window handle
-            selectedKeybindNumber+100,                                              // hotkey ID (must be unique)
-            4,                                              // modifiers (e.g. MOD_CONTROL | MOD_ALT)
-            vkKeybindKeyCode)) {                              // key code
-        qDebug() << "Failed to register hotkey!";
-    }
-
-    //Update user_data.json with new keybind
-    QFile file("user_data.json");
-    if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "Failed to open file for reading.";
-        return;
-    }
-
-    // Parse existing JSON
-    QByteArray data = file.readAll();
-    file.close();
-    QJsonDocument doc = QJsonDocument::fromJson(data);
-    if (!doc.isObject()) {
-        qDebug() << "JSON is not an object.";
-        return;
-    }
-
-    QJsonObject root = doc.object();
-
-    // Get the "keybinds" array
-    QJsonArray keybinds = root.value("keybinds").toArray();
-    if (selectedKeybindNumber < 0 || selectedKeybindNumber >= keybinds.size()) {
+    if (selectedKeybindNumber < 0 || selectedKeybindNumber >= currentKeybinds.size()) {
         qDebug() << "Invalid keybind index:" << selectedKeybindNumber;
         return;
     }
@@ -542,19 +846,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     newKeybind["letter"] = keyText;
     newKeybind["key_code"] = intToHexString(vkKeybindKeyCode);
 
-    // Replace element
-    keybinds[selectedKeybindNumber] = newKeybind;
-
-    // Update root object
-    root["keybinds"] = keybinds;
-
-    // Write back to file
-    file.setFileName("user_data.json");
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        qDebug() << "Failed to open file for writing.";
-        return;
-    }
-    QJsonDocument saveDoc(root);
-    file.write(saveDoc.toJson(QJsonDocument::Indented));
-    file.close();
+    // Replace element in the live loadout, store it in the active preset and save
+    currentKeybinds[selectedKeybindNumber] = newKeybind;
+    syncActivePresetFromState();
+    saveUserData();
 }
